@@ -1,3 +1,8 @@
+import HeroSection from '../modules/landing-page/Hero'
 export default function Home() {
-  return <h1>Andrepogi</h1>
+  return (
+    <>
+      <HeroSection />
+    </>
+  )
 }
