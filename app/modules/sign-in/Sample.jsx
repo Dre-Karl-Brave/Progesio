@@ -15,3 +15,8 @@ Secondary Text: #475569
 
   */
 }
+export default function Sample(){
+  return (
+    <>hello</>
+  )
+}
