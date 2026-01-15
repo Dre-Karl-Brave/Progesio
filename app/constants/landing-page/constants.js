@@ -14,3 +14,7 @@ export const HERO_DATA = {
     alt: 'Landing page preview'
   }
 }
+
+export const ABOUT_DATA = {
+  
+}
