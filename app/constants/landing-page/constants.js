@@ -36,3 +36,31 @@ export const ABOUT_DATA = {
     }
   ]
 }
+
+export const FAQ_DATA = [
+  {
+    question: 'How does the AI-powered productivity system work?',
+    answer: [
+      'Our AI analyzes your workflow patterns, deadlines, and task priorities to provide intelligent recommendations that adapt to your habits.'
+    ]
+  },
+  {
+    question: 'Is my data secure and private?',
+    answer: [
+      'Yes. All data is encrypted end-to-end and never shared with third parties. You have full control over your information at all times.'
+    ]
+  },
+  {
+    question: 'Can I use this across multiple devices?',
+    answer: [
+      'Absolutely. Your workspace syncs seamlessly across all devices in real-time, with offline support for uninterrupted productivity.'
+    ]
+  },
+  {
+    question: 'What makes this different from other productivity tools?',
+    answer: [
+      'Our AI predicts burnout, detects procrastination patterns, and proactively suggests workload adjustments - optimizing your entire workflow, not just tracking tasks.'
+    ]
+  }
+]
+

@@ -3,33 +3,7 @@
 import { motion } from 'motion/react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
-
-const FAQ_DATA = [
-  {
-    question: 'How does the AI-powered productivity system work?',
-    answer: [
-      'Our AI analyzes your workflow patterns, deadlines, and task priorities to provide intelligent recommendations that adapt to your habits.'
-    ]
-  },
-  {
-    question: 'Is my data secure and private?',
-    answer: [
-      'Yes. All data is encrypted end-to-end and never shared with third parties. You have full control over your information at all times.'
-    ]
-  },
-  {
-    question: 'Can I use this across multiple devices?',
-    answer: [
-      'Absolutely. Your workspace syncs seamlessly across all devices in real-time, with offline support for uninterrupted productivity.'
-    ]
-  },
-  {
-    question: 'What makes this different from other productivity tools?',
-    answer: [
-      'Our AI predicts burnout, detects procrastination patterns, and proactively suggests workload adjustments - optimizing your entire workflow, not just tracking tasks.'
-    ]
-  }
-]
+import { FAQ_DATA } from '@/app/constants/landing-page/constants'
 
 export default function FAQ() {
   return (
@@ -77,7 +51,7 @@ export default function FAQ() {
             <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
               <div>
                 <h3 className='text-lg font-semibold text-[#0F172A]'>Still have questions?</h3>
-                <p className='text-sm text-[#475569] mt-1'>We're here to help. Reach out to our support team.</p>
+                <p className='text-sm text-[#475569] mt-1'>We&apos;re here to help. Reach out to our support team.</p>
               </div>
               <Button
                 variant='outline'
@@ -85,7 +59,7 @@ export default function FAQ() {
               >
                 Contact Support
               </Button>
-            </div>
+            </div> 
           </motion.div>
         </motion.div>
       </div>
