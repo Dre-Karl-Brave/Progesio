@@ -5,7 +5,7 @@ import { Highlighter } from '@/components/ui/highlighter'
 
 export default function AdvertisementText() {
   return (
-    <section className='mx-auto max-w-7xl px-4 py-20 mt-40'>
+    <section className='mx-auto max-w-7xl px-4 py-20 mt-60'>
       <div className='text-center'>
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

@@ -7,7 +7,7 @@ import { FAQ_DATA } from '@/app/constants/landing-page/constants'
 
 export default function FAQ() {
   return (
-    <section id='faq' className='w-full px-4 py-20 mt-32'>
+    <section id='faq' className='w-full px-4 py-20 mt-60'>
       <div className='mx-auto max-w-7xl px-4'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
