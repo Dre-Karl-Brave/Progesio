@@ -26,8 +26,9 @@ export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const menuItems = [
-    { name: 'About', href: '#about' },
-    { name: 'FAQ', href: '#faq' }
+    { name: 'About', href: '/#about' },
+    { name: 'Features', href: '/features' },
+    { name: 'FAQ', href: '/#faq' }
   ]
 
   return (
