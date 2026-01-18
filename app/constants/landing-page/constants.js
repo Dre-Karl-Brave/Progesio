@@ -64,3 +64,26 @@ export const FAQ_DATA = [
   }
 ]
 
+export const FOOTER_DATA = {
+  brand: {
+    name: 'Progresio',
+    tagline: 'AI-powered productivity for students, built by students.'
+  },
+  quickLinks: {
+    title: 'Quick Links',
+    links: [
+      { text: 'About', href: '#about' },
+      { text: 'FAQ', href: '#faq' },
+      { text: 'Get Started', href: '/sign-in' }
+    ]
+  },
+  support: {
+    title: 'Support',
+    links: [
+      { text: 'Contact Us', href: '#' },
+      { text: 'Privacy Policy', href: '#' },
+      { text: 'Terms of Service', href: '#' }
+    ]
+  },
+  copyright: 'Progresio. All rights reserved.'
+}

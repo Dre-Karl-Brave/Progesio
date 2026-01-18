@@ -1,5 +1,8 @@
 'use client'
 
+import Link from 'next/link'
+import { FOOTER_DATA } from '@/app/constants/landing-page/constants'
+
 export default function Footer() {
   const currentYear = new Date().getFullYear()
 
@@ -9,60 +12,46 @@ export default function Footer() {
         <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
           {/* Brand Section */}
           <div>
-            <h3 className='text-2xl font-bold text-white'>Progresio</h3>
-            <p className='mt-3 text-sm text-[#E5E7EB] leading-relaxed'>
-              AI-powered productivity for students, built by students.
-            </p>
+            <h3 className='text-2xl font-bold text-white'>{FOOTER_DATA.brand.name}</h3>
+            <p className='mt-3 text-sm text-[#E5E7EB] leading-relaxed'>{FOOTER_DATA.brand.tagline}</p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className='text-sm font-semibold text-white uppercase tracking-wider'>Quick Links</h4>
+            <h4 className='text-sm font-semibold text-white uppercase tracking-wider'>
+              {FOOTER_DATA.quickLinks.title}
+            </h4>
             <ul className='mt-4 space-y-2'>
-              <li>
-                <a href='#about' className='text-sm text-[#E5E7EB] hover:text-white transition-colors'>
-                  About
-                </a>
-              </li>
-              <li>
-                <a href='#faq' className='text-sm text-[#E5E7EB] hover:text-white transition-colors'>
-                  FAQ
-                </a>
-              </li>
-              <li>
-                <a href='/sign-in' className='text-sm text-[#E5E7EB] hover:text-white transition-colors'>
-                  Get Started
-                </a>
-              </li>
+              {FOOTER_DATA.quickLinks.links.map((link, index) => (
+                <li key={index}>
+                  <Link href={link.href} className='text-sm text-[#E5E7EB] hover:text-white transition-colors'>
+                    {link.text}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className='text-sm font-semibold text-white uppercase tracking-wider'>Support</h4>
+            <h4 className='text-sm font-semibold text-white uppercase tracking-wider'>{FOOTER_DATA.support.title}</h4>
             <ul className='mt-4 space-y-2'>
-              <li>
-                <a href='#' className='text-sm text-[#E5E7EB] hover:text-white transition-colors'>
-                  Contact Us
-                </a>
-              </li>
-              <li>
-                <a href='#' className='text-sm text-[#E5E7EB] hover:text-white transition-colors'>
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a href='#' className='text-sm text-[#E5E7EB] hover:text-white transition-colors'>
-                  Terms of Service
-                </a>
-              </li>
+              {FOOTER_DATA.support.links.map((link, index) => (
+                <li key={index}>
+                  <Link href={link.href} className='text-sm text-[#E5E7EB] hover:text-white transition-colors'>
+                    {link.text}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className='mt-12 pt-8 border-t border-[#475569]'>
-          <p className='text-center text-sm text-[#E5E7EB]'>© {currentYear} Progresio. All rights reserved.</p>
+          <p className='text-center text-sm text-[#E5E7EB]'>
+            © {currentYear} {FOOTER_DATA.copyright}
+          </p>
         </div>
       </div>
     </footer>
