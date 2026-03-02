@@ -6,11 +6,13 @@ import AdvertisementText from '../modules/landing-page/AdvertisementText'
 import FrequentlyAskedQuestions from '../modules/landing-page/FrequentlyAskedQuestions'
 import Footer from '../modules/landing-page/Footer'
 import NavbarComponent from '../modules/landing-page/Navbar'
+import { Toaster } from '../modules/toast'
 
 export default function Home() {
   return (
     <>
       <NavbarComponent />
+      <Toaster />
       <HeroSection />
       <Divider />
       <About />

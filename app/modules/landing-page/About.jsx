@@ -45,7 +45,7 @@ export default function About() {
               <h2 className='max-w-80 text-left text-balance text-sm font-semibold tracking-[-0.015em] text-[#0F172A] md:text-base lg:text-xl'>
                 {ABOUT_DATA.cards[1].title}
               </h2>
-              <p className='mt-2 max-w-[26rem] text-left text-sm/5 text-[#475569]'>{ABOUT_DATA.cards[1].description}</p>
+              <p className='mt-2 max-w-104 text-left text-sm/5 text-[#475569]'>{ABOUT_DATA.cards[1].description}</p>
             </WobbleCard>
 
             {/* Full width card - spans 3 columns */}
@@ -54,9 +54,7 @@ export default function About() {
                 <h2 className='max-w-sm text-left text-balance text-sm font-semibold tracking-[-0.015em] text-white md:max-w-lg md:text-base lg:text-xl'>
                   {ABOUT_DATA.cards[2].title}
                 </h2>
-                <p className='mt-2 max-w-[26rem] text-left text-sm/5 text-[#E5E7EB]'>
-                  {ABOUT_DATA.cards[2].description}
-                </p>
+                <p className='mt-2 max-w-104 text-left text-sm/5 text-[#E5E7EB]'>{ABOUT_DATA.cards[2].description}</p>
               </div>
             </WobbleCard>
           </div>

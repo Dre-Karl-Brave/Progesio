@@ -92,15 +92,17 @@ export default function HeroSection() {
           }}
           className='relative z-10 mt-20 rounded-3xl border border-[#E5E7EB] bg-[#F8FAFC] p-4 shadow-md'
         >
-          <div className='w-full overflow-hidden rounded-xl border border-[#E5E7EB]'>
-            <Image
-              src={HERO_DATA.image.src}
-              alt={HERO_DATA.image.alt}
-              className='aspect-[16/9] h-auto w-full object-cover'
-              height={1000}
-              width={1000}
-            />
-          </div>
+          {HERO_DATA.image.src && (
+            <div className='w-full overflow-hidden rounded-xl border border-[#E5E7EB]'>
+              <Image
+                src={HERO_DATA.image.src}
+                alt={HERO_DATA.image.alt}
+                className='aspect-video h-auto w-full object-cover'
+                height={1000}
+                width={1000}
+              />
+            </div>
+          )}
         </motion.div>
       </div>
     </div>

@@ -59,7 +59,7 @@ export default function FAQ() {
               >
                 Contact Support
               </Button>
-            </div> 
+            </div>
           </motion.div>
         </motion.div>
       </div>
