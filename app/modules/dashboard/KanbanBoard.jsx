@@ -22,6 +22,7 @@ import TaskCard from './TaskCard'
 import MembersPanel from './MembersPanel'
 import AddMemberModal from './AddMemberModal'
 import TaskDetailModal from './TaskDetailModal'
+import DeleteBoardDialog from './DeleteBoardDialog'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 
 export default function KanbanBoard({ boardId }) {
@@ -35,6 +36,7 @@ export default function KanbanBoard({ boardId }) {
   const [showAddMemberModal, setShowAddMemberModal] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
   const [currentUserId, setCurrentUserId] = useState(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const boardRef = useRef(board)
   const assigneeFilter = searchParams.get('assignee')
@@ -68,10 +70,6 @@ export default function KanbanBoard({ boardId }) {
     fetchBoard()
     axios.get('/api/auth/me').then((res) => setCurrentUserId(res.data.user.id)).catch(() => {})
   }, [fetchBoard])
-
-  const findColumnByTaskId = (taskId) => {
-    return board?.columns.find((col) => col.tasks?.some((t) => t.id === taskId))
-  }
 
   const findColumnByTaskIdFromRef = (taskId) => {
     return boardRef.current?.columns.find((col) => col.tasks?.some((t) => t.id === taskId))
@@ -252,7 +250,6 @@ export default function KanbanBoard({ boardId }) {
   }
 
   const handleDeleteBoard = async () => {
-    if (!window.confirm(DASHBOARD_DATA.boardList.deleteConfirm)) return
     await axios.delete(`/api/boards/${boardId}`)
     router.push('/dashboard')
   }
@@ -307,11 +304,11 @@ export default function KanbanBoard({ boardId }) {
 
   return (
     <DashboardShell>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between mt-5">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push('/dashboard')}
-            className="rounded-md p-1.5 text-[#475569] transition-colors hover:bg-[#E5E7EB] hover:text-[#0F172A]"
+            className="rounded-md p-1.5 text-[#475569] transition-colors hover:bg-[#E5E7EB] hover:text-[#0F172A] cursor-pointer"
           >
             <ArrowLeft size={18} />
           </button>
@@ -331,13 +328,6 @@ export default function KanbanBoard({ boardId }) {
               onRemoveMember={handleRemoveMember}
             />
           )}
-          <button
-            onClick={handleDeleteBoard}
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-red-500 transition-colors hover:bg-red-50"
-          >
-            <Trash2 size={16} />
-            {DASHBOARD_DATA.kanban.deleteBoardButton}
-          </button>
         </div>
       </div>
 
@@ -374,7 +364,7 @@ export default function KanbanBoard({ boardId }) {
               <button
                 type="submit"
                 disabled={addingColumn || !newColumnName.trim()}
-                className="flex items-center gap-1 rounded-md bg-[#0F172A] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0F172A]/90 disabled:opacity-50"
+                className="flex items-center gap-1 rounded-md bg-[#0F172A] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0F172A]/90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
                 <Plus size={14} />
               </button>
@@ -405,6 +395,22 @@ export default function KanbanBoard({ boardId }) {
           onDelete={handleDeleteTask}
         />
       )}
+
+      {showDeleteDialog && (
+        <DeleteBoardDialog
+          boardName={board.name}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={handleDeleteBoard}
+        />
+      )}
+
+      <button
+        onClick={() => setShowDeleteDialog(true)}
+        className="fixed bottom-6 right-6 flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-500 shadow-lg transition-all hover:bg-red-50 hover:shadow-xl cursor-pointer"
+      >
+        <Trash2 size={16} />
+        Delete Board
+      </button>
     </DashboardShell>
   )
 }
