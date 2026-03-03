@@ -27,21 +27,27 @@ export default function DashboardShell({ children }) {
     <div className="min-h-screen bg-[#F8FAFC]">
       <header className="sticky top-0 z-50 border-b border-[#E5E7EB] bg-white">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-          <span className="text-lg font-bold text-[#0F172A]">
-            {DASHBOARD_DATA.shell.logoText}
-          </span>
-          <div className="flex items-center gap-3">
-            {user && (
-              <span className="text-sm text-[#475569]">{user.name || user.email}</span>
-            )}
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[#475569] transition-colors hover:bg-[#F8FAFC] hover:text-[#0F172A]"
-            >
-              <LogOut size={16} />
-              {DASHBOARD_DATA.shell.logoutButton}
-            </button>
-          </div>
+          {user ? (
+            <div className="flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-1">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0F172A] text-xs font-bold text-white">
+                {(user.name || user.email).charAt(0).toUpperCase()}
+              </div>
+              <span className="text-xs font-semibold text-[#0F172A]">
+                {user.name || user.email}
+              </span>
+            </div>
+          ) : (
+            <span className="text-lg font-bold text-[#0F172A]">
+              {DASHBOARD_DATA.shell.logoText}
+            </span>
+          )}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[#475569] transition-colors hover:bg-[#F8FAFC] hover:text-[#0F172A] cursor-pointer"
+          >
+            <LogOut size={16} />
+            {DASHBOARD_DATA.shell.logoutButton}
+          </button>
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
