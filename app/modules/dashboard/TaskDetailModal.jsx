@@ -7,6 +7,7 @@ import { Select, MenuItem, FormControl } from '@mui/material'
 import { Input } from '@/components/ui/input'
 import { getInitials } from '@/lib/utils'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
+import DeleteTaskDialog from './DeleteTaskDialog'
 
 export default function TaskDetailModal({ task, members, onClose, onSave, onDelete }) {
   const [title, setTitle] = useState(task.title)
@@ -20,6 +21,7 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
   const [newLabel, setNewLabel] = useState('')
   const [selectedColor, setSelectedColor] = useState(DASHBOARD_DATA.labels.colors[0].value)
   const [loading, setLoading] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const handleSave = async () => {
     if (!title.trim()) return
@@ -42,10 +44,13 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
   }
 
   const handleDelete = () => {
-    if (window.confirm(DASHBOARD_DATA.taskCard.deleteConfirm)) {
-      onDelete(task.id)
-      onClose()
-    }
+    setShowDeleteDialog(true)
+  }
+
+  const confirmDelete = () => {
+    onDelete(task.id)
+    setShowDeleteDialog(false)
+    onClose()
   }
 
   const addLabel = () => {
@@ -282,6 +287,14 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
           </div>
         </div>
       </motion.div>
+
+      {showDeleteDialog && (
+        <DeleteTaskDialog
+          taskTitle={task.title}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={confirmDelete}
+        />
+      )}
     </div>
   )
 }

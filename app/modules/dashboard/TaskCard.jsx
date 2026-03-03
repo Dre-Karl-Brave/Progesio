@@ -6,6 +6,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Trash2, Calendar, UserCircle } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
+import DeleteTaskDialog from './DeleteTaskDialog'
 
 const AVATAR_COLORS = [
   'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500',
@@ -30,6 +31,7 @@ function parseLabel(label) {
 
 export default function TaskCard({ task, onDelete, onClick, isDragOverlay, members, onUpdate }) {
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const dropdownRef = useRef(null)
 
   const {
@@ -68,9 +70,12 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
 
   const handleDelete = (e) => {
     e.stopPropagation()
-    if (window.confirm(DASHBOARD_DATA.taskCard.deleteConfirm)) {
-      onDelete(task.id)
-    }
+    setShowDeleteDialog(true)
+  }
+
+  const confirmDelete = () => {
+    onDelete(task.id)
+    setShowDeleteDialog(false)
   }
 
   const handleClick = (e) => {
@@ -224,6 +229,14 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
           </div>
         </div>
       </div>
+
+      {showDeleteDialog && (
+        <DeleteTaskDialog
+          taskTitle={task.title}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={confirmDelete}
+        />
+      )}
     </div>
   )
 }
