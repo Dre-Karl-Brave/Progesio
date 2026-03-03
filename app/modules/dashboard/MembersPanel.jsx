@@ -1,6 +1,8 @@
 'use client'
 
+import { useRouter, useSearchParams } from 'next/navigation'
 import { UserPlus, Crown, X } from 'lucide-react'
+import { Tooltip } from '@mui/material'
 import { getInitials } from '@/lib/utils'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 
@@ -18,27 +20,58 @@ function getAvatarColor(id) {
 }
 
 export default function MembersPanel({ members, isOwner, onAddClick, onRemoveMember }) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const handleMemberClick = (userId) => {
+    const params = new URLSearchParams(searchParams)
+    const currentAssignee = params.get('assignee')
+
+    if (currentAssignee === userId) {
+      params.delete('assignee')
+    } else {
+      params.set('assignee', userId)
+    }
+
+    const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname
+    router.push(newUrl)
+  }
+
+  const isSelected = (userId) => {
+    return searchParams.get('assignee') === userId
+  }
+
   return (
     <div className="flex items-center gap-2">
       <div className="flex -space-x-2">
         {members.map((member) => (
-          <div
+          <Tooltip
             key={member.id}
-            className={`relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white text-xs font-semibold text-white ${getAvatarColor(member.user.id)}`}
-            title={`${member.user.name || member.user.email}${member.role === 'owner' ? ' (Owner)' : ''}`}
+            title={member.user.email}
+            arrow
+            placement="top"
           >
-            {getInitials(member.user.name || member.user.email)}
-            {member.role === 'owner' && (
-              <Crown size={10} className="absolute -right-0.5 -top-0.5 text-yellow-400 drop-shadow" />
-            )}
-          </div>
+            <div
+              onClick={() => handleMemberClick(member.user.id)}
+              className={`relative flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold text-white cursor-pointer transition-transform hover:scale-110 ${
+                isSelected(member.user.id)
+                  ? 'border-[#0F172A] ring-2 ring-[#0F172A] ring-offset-2'
+                  : 'border-white'
+              } ${getAvatarColor(member.user.id)}`}
+            >
+              {getInitials(member.user.name || member.user.email)}
+              {member.role === 'owner' && (
+                <Crown size={10} className="absolute -right-0.5 -top-0.5 text-yellow-400 drop-shadow" />
+              )}
+            </div>
+          </Tooltip>
         ))}
       </div>
 
       {isOwner && (
         <button
           onClick={onAddClick}
-          className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed border-[#CBD5E1] text-[#475569] transition-colors hover:border-[#0F172A] hover:text-[#0F172A]"
+          className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed border-[#CBD5E1] text-[#475569] transition-colors hover:border-[#0F172A] hover:text-[#0F172A] hover:cursor-pointer"
           title={DASHBOARD_DATA.members.addButton}
         >
           <UserPlus size={14} />
@@ -49,22 +82,55 @@ export default function MembersPanel({ members, isOwner, onAddClick, onRemoveMem
 }
 
 export function MembersList({ members, isOwner, onRemoveMember }) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const handleMemberClick = (userId) => {
+    const params = new URLSearchParams(searchParams)
+    const currentAssignee = params.get('assignee')
+
+    if (currentAssignee === userId) {
+      params.delete('assignee')
+    } else {
+      params.set('assignee', userId)
+    }
+
+    const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname
+    router.push(newUrl)
+  }
+
+  const isSelected = (userId) => {
+    return searchParams.get('assignee') === userId
+  }
+
   return (
     <div className="space-y-2">
       {members.map((member) => (
-        <div key={member.id} className="flex items-center justify-between rounded-lg bg-[#F8FAFC] px-3 py-2">
+        <div
+          key={member.id}
+          className={`flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer transition-colors ${
+            isSelected(member.user.id)
+              ? 'bg-[#0F172A] text-white'
+              : 'bg-[#F8FAFC] hover:bg-[#E5E7EB]'
+          }`}
+          onClick={() => handleMemberClick(member.user.id)}
+        >
           <div className="flex items-center gap-2">
-            <div
-              className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold text-white ${getAvatarColor(member.user.id)}`}
-            >
-              {getInitials(member.user.name || member.user.email)}
-            </div>
+            <Tooltip title={member.user.email} arrow placement="left">
+              <div
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold text-white ${getAvatarColor(member.user.id)}`}
+              >
+                {getInitials(member.user.name || member.user.email)}
+              </div>
+            </Tooltip>
             <div>
-              <p className="text-sm font-medium text-[#0F172A]">
+              <p className={`text-sm font-medium ${isSelected(member.user.id) ? 'text-white' : 'text-[#0F172A]'}`}>
                 {member.user.name || member.user.email}
               </p>
               {member.user.name && (
-                <p className="text-xs text-[#475569]">{member.user.email}</p>
+                <p className={`text-xs ${isSelected(member.user.id) ? 'text-gray-300' : 'text-[#475569]'}`}>
+                  {member.user.email}
+                </p>
               )}
             </div>
             {member.role === 'owner' && (
@@ -75,7 +141,8 @@ export function MembersList({ members, isOwner, onRemoveMember }) {
           </div>
           {isOwner && member.role !== 'owner' && (
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation()
                 if (window.confirm(DASHBOARD_DATA.members.removeConfirm)) {
                   onRemoveMember(member.id)
                 }
