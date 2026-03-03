@@ -39,7 +39,7 @@ export default function DeleteTaskDialog({ taskTitle, onClose, onConfirm }) {
           <div className='p-6'>
             <div className='mb-6 space-y-3'>
               <p className='text-sm leading-relaxed text-[#475569]'>
-                You're about to permanently delete this task
+                You&apos;re about to permanently delete this task
               </p>
               <div className='rounded-lg bg-[#F8FAFC] px-3 py-2 border border-[#E5E7EB]'>
                 <p className='text-sm font-semibold text-[#0F172A]'>{taskTitle}</p>
