@@ -122,22 +122,19 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
     <div
       ref={setNodeRef}
       style={style}
+      {...attributes}
+      {...listeners}
       onClick={handleClick}
-      className={`group relative cursor-pointer rounded-lg border bg-white p-3 shadow-sm transition-colors ${
+      className={`group relative cursor-grab rounded-lg border bg-white p-3 shadow-sm transition-colors active:cursor-grabbing ${
         isDragging
           ? 'border-blue-300 opacity-40'
           : 'border-[#E5E7EB] hover:border-[#CBD5E1]'
       }`}
     >
       <div className="flex items-start gap-2">
-        <button
-          {...attributes}
-          {...listeners}
-          onClick={(e) => e.stopPropagation()}
-          className="mt-0.5 shrink-0 cursor-grab touch-none text-[#94A3B8] transition-colors hover:text-[#475569] active:cursor-grabbing"
-        >
+        <div className="mt-0.5 shrink-0 text-[#94A3B8] transition-colors">
           <GripVertical size={16} />
-        </button>
+        </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <p className="text-sm font-medium text-[#0F172A]">{task.title}</p>
