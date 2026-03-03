@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import { X, Trash2, Plus } from 'lucide-react'
+import { Select, MenuItem, FormControl } from '@mui/material'
 import { Input } from '@/components/ui/input'
 import { getInitials } from '@/lib/utils'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
@@ -83,7 +84,7 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
           </h2>
           <button
             onClick={onClose}
-            className="rounded p-1 text-[#475569] transition-colors hover:text-[#0F172A]"
+            className="rounded p-1 text-[#475569] transition-colors hover:text-[#0F172A] cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -120,15 +121,32 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
               <label className="mb-1.5 block text-sm font-medium text-[#0F172A]">
                 {DASHBOARD_DATA.taskDetail.priorityLabel}
               </label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-                className="w-full rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0F172A]/20"
-              >
-                {Object.entries(DASHBOARD_DATA.priorities).map(([key, { label }]) => (
-                  <option key={key} value={key}>{label}</option>
-                ))}
-              </select>
+              <FormControl fullWidth>
+                <Select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  sx={{
+                    height: '38px',
+                    fontSize: '0.875rem',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#E5E7EB',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#0F172A',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#0F172A',
+                      borderWidth: '2px',
+                    },
+                  }}
+                >
+                  {Object.entries(DASHBOARD_DATA.priorities).map(([key, { label }]) => (
+                    <MenuItem key={key} value={key} sx={{ fontSize: '0.875rem' }}>
+                      {label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </div>
 
             {/* Assignee */}
@@ -136,18 +154,36 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
               <label className="mb-1.5 block text-sm font-medium text-[#0F172A]">
                 {DASHBOARD_DATA.taskDetail.assigneeLabel}
               </label>
-              <select
-                value={assigneeId}
-                onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0F172A]/20"
-              >
-                <option value="">{DASHBOARD_DATA.createTask.unassigned}</option>
-                {members.map((member) => (
-                  <option key={member.user.id} value={member.user.id}>
-                    {member.user.name || member.user.email}
-                  </option>
-                ))}
-              </select>
+              <FormControl fullWidth>
+                <Select
+                  value={assigneeId}
+                  onChange={(e) => setAssigneeId(e.target.value)}
+                  displayEmpty
+                  sx={{
+                    height: '38px',
+                    fontSize: '0.875rem',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#E5E7EB',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#0F172A',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#0F172A',
+                      borderWidth: '2px',
+                    },
+                  }}
+                >
+                  <MenuItem value="" sx={{ fontSize: '0.875rem' }}>
+                    {DASHBOARD_DATA.createTask.unassigned}
+                  </MenuItem>
+                  {members.map((member) => (
+                    <MenuItem key={member.user.id} value={member.user.id} sx={{ fontSize: '0.875rem' }}>
+                      {member.user.name || member.user.email}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </div>
 
             {/* Due Date */}
@@ -159,7 +195,7 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0F172A]/20"
+                className="w-full rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0F172A]/20 cursor-pointer"
               />
             </div>
           </div>
@@ -179,7 +215,7 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
                     style={{ backgroundColor: color }}
                   >
                     {text}
-                    <button onClick={() => removeLabel(label)} className="hover:opacity-75">
+                    <button onClick={() => removeLabel(label)} className="hover:opacity-75 cursor-pointer">
                       <X size={12} />
                     </button>
                   </span>
@@ -193,7 +229,7 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
                     key={c.value}
                     type="button"
                     onClick={() => setSelectedColor(c.value)}
-                    className={`h-5 w-5 rounded-full border-2 transition-all ${
+                    className={`h-5 w-5 rounded-full border-2 transition-all cursor-pointer ${
                       selectedColor === c.value ? 'border-[#0F172A] scale-110' : 'border-transparent'
                     }`}
                     style={{ backgroundColor: c.value }}
@@ -212,7 +248,7 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
                 type="button"
                 onClick={addLabel}
                 disabled={!newLabel.trim()}
-                className="rounded-md bg-[#F8FAFC] p-2 text-[#475569] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+                className="rounded-md bg-[#F8FAFC] p-2 text-[#475569] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
                 <Plus size={16} />
               </button>
@@ -223,7 +259,7 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
           <div className="flex items-center justify-between border-t border-[#E5E7EB] pt-4">
             <button
               onClick={handleDelete}
-              className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-red-500 transition-colors hover:bg-red-50"
+              className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-red-500 transition-colors hover:bg-red-50 cursor-pointer"
             >
               <Trash2 size={14} />
               {DASHBOARD_DATA.taskDetail.deleteButton}
@@ -231,14 +267,14 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
             <div className="flex gap-2">
               <button
                 onClick={onClose}
-                className="rounded-md border border-[#E5E7EB] px-4 py-2 text-sm text-[#475569] transition-colors hover:bg-[#F8FAFC]"
+                className="rounded-md border border-[#E5E7EB] px-4 py-2 text-sm text-[#475569] transition-colors hover:bg-[#F8FAFC] cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={loading || !title.trim()}
-                className="rounded-md bg-[#0F172A] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0F172A]/90 disabled:opacity-50"
+                className="rounded-md bg-[#0F172A] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0F172A]/90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
                 {loading ? DASHBOARD_DATA.taskDetail.savingButton : DASHBOARD_DATA.taskDetail.saveButton}
               </button>
