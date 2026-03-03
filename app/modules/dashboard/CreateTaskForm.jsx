@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Select, MenuItem, FormControl } from '@mui/material'
 import { Input } from '@/components/ui/input'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 
@@ -29,53 +30,92 @@ export default function CreateTaskForm({ members, onSubmit, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2 rounded-lg border border-[#E5E7EB] bg-white p-3">
-      <Input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder={DASHBOARD_DATA.createTask.placeholder}
-        autoFocus
-      />
+    <form onSubmit={handleSubmit} className="rounded-lg border border-[#E5E7EB] bg-white p-4">
+      <div className="mb-4">
+        <Input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder={DASHBOARD_DATA.createTask.placeholder}
+          autoFocus
+        />
+      </div>
       {error && (
-        <p className="text-xs text-red-500">{error}</p>
+        <p className="text-xs text-red-500 mb-4">{error}</p>
       )}
-      <select
-        value={priority}
-        onChange={(e) => setPriority(e.target.value)}
-        className="w-full rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0F172A]/20"
-      >
-        {Object.entries(DASHBOARD_DATA.priorities).map(([key, { label }]) => (
-          <option key={key} value={key}>
-            {label}
-          </option>
-        ))}
-      </select>
+      <div className="mb-4">
+        <FormControl fullWidth>
+          <Select
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+            sx={{
+              height: '38px',
+              fontSize: '0.875rem',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#E5E7EB',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#0F172A',
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#0F172A',
+                borderWidth: '2px',
+              },
+            }}
+          >
+            {Object.entries(DASHBOARD_DATA.priorities).map(([key, { label }]) => (
+              <MenuItem key={key} value={key} sx={{ fontSize: '0.875rem' }}>
+                {label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </div>
       {members && members.length > 0 && (
-        <select
-          value={assigneeId}
-          onChange={(e) => setAssigneeId(e.target.value)}
-          className="w-full rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0F172A]/20"
-        >
-          <option value="">{DASHBOARD_DATA.createTask.unassigned}</option>
-          {members.map((member) => (
-            <option key={member.user.id} value={member.user.id}>
-              {member.user.name || member.user.email}
-            </option>
-          ))}
-        </select>
+        <div className="mb-4">
+          <FormControl fullWidth>
+            <Select
+              value={assigneeId}
+              onChange={(e) => setAssigneeId(e.target.value)}
+              displayEmpty
+              sx={{
+                height: '38px',
+                fontSize: '0.875rem',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#E5E7EB',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#0F172A',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#0F172A',
+                  borderWidth: '2px',
+                },
+              }}
+            >
+              <MenuItem value="" sx={{ fontSize: '0.875rem' }}>
+                {DASHBOARD_DATA.createTask.unassigned}
+              </MenuItem>
+              {members.map((member) => (
+                <MenuItem key={member.user.id} value={member.user.id} sx={{ fontSize: '0.875rem' }}>
+                  {member.user.name || member.user.email}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
       )}
-      <div className="flex gap-2">
+      <div className="flex gap-2 pt-2">
         <button
           type="submit"
           disabled={loading || !title.trim()}
-          className="rounded-md bg-[#0F172A] px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[#0F172A]/90 disabled:opacity-50"
+          className="rounded-md bg-[#0F172A] px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[#0F172A]/90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
         >
           {DASHBOARD_DATA.createTask.addButton}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md px-3 py-1.5 text-sm text-[#475569] transition-colors hover:bg-[#F8FAFC]"
+          className="rounded-md px-3 py-1.5 text-sm text-[#475569] transition-colors hover:bg-[#F8FAFC] cursor-pointer"
         >
           {DASHBOARD_DATA.createTask.cancelButton}
         </button>
