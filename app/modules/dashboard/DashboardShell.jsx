@@ -9,9 +9,14 @@ import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 export default function DashboardShell({ children }) {
   const router = useRouter()
   const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    axios.get('/api/auth/me').then((res) => setUser(res.data.user)).catch(() => {})
+    axios
+      .get('/api/auth/me')
+      .then((res) => setUser(res.data.user))
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [])
 
   const handleLogout = async () => {
@@ -27,7 +32,12 @@ export default function DashboardShell({ children }) {
     <div className="min-h-screen bg-[#F8FAFC]">
       <header className="sticky top-0 z-50 border-b border-[#E5E7EB] bg-white">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-          {user ? (
+          {loading ? (
+            <div className="flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-1">
+              <div className="h-6 w-6 animate-pulse rounded-full bg-[#E5E7EB]"></div>
+              <div className="h-4 w-24 animate-pulse rounded bg-[#E5E7EB]"></div>
+            </div>
+          ) : user ? (
             <div className="flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-1">
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0F172A] text-xs font-bold text-white">
                 {(user.name || user.email).charAt(0).toUpperCase()}

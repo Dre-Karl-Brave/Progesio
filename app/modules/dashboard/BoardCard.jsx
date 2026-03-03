@@ -27,7 +27,7 @@ export default function BoardCard({ board, onDelete }) {
         <h3 className="text-base font-semibold text-[#0F172A]">{board.name}</h3>
         <button
           onClick={handleDelete}
-          className="rounded p-1 text-[#475569] opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
+          className="rounded p-1 text-[#475569] opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100 hover:cursor-pointer"
         >
           <Trash2 size={16} />
         </button>

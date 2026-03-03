@@ -6,6 +6,7 @@ import { Plus, LayoutDashboard } from 'lucide-react'
 import { motion } from 'motion/react'
 import DashboardShell from './DashboardShell'
 import BoardCard from './BoardCard'
+import BoardCardSkeleton from './BoardCardSkeleton'
 import CreateBoardModal from './CreateBoardModal'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 
@@ -49,7 +50,7 @@ export default function BoardList() {
         <h1 className="text-xl font-bold text-[#0F172A]">{DASHBOARD_DATA.boardList.title}</h1>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-1.5 rounded-md bg-[#0F172A] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0F172A]/90"
+          className="flex items-center gap-1.5 rounded-md bg-[#0F172A] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0F172A]/90 hover:cursor-pointer"
         >
           <Plus size={16} />
           {DASHBOARD_DATA.boardList.newBoardButton}
@@ -57,7 +58,11 @@ export default function BoardList() {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-sm text-[#475569]">Loading...</div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <BoardCardSkeleton key={i} />
+          ))}
+        </div>
       ) : boards.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
