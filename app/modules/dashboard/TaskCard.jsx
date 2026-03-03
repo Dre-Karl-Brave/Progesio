@@ -143,7 +143,7 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
             <p className="text-sm font-medium text-[#0F172A]">{task.title}</p>
             <button
               onClick={handleDelete}
-              className="shrink-0 rounded p-0.5 text-[#94A3B8] opacity-0 transition-all hover:text-red-500 group-hover:opacity-100"
+              className="shrink-0 rounded p-0.5 text-[#94A3B8] opacity-0 transition-all hover:text-red-500 group-hover:opacity-100 cursor-pointer"
             >
               <Trash2 size={14} />
             </button>
@@ -185,7 +185,7 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={handleAssigneeClick}
-                className="shrink-0 rounded-full transition-opacity hover:opacity-80"
+                className="shrink-0 rounded-full transition-opacity hover:opacity-80 cursor-pointer"
                 title={task.assignee ? (task.assignee.name || task.assignee.email) : 'Unassigned'}
               >
                 {task.assignee ? (
@@ -202,7 +202,7 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
                 <div className="absolute right-0 top-8 z-50 w-48 rounded-lg border border-[#E5E7EB] bg-white py-1 shadow-lg">
                   <button
                     onClick={() => handleAssign(null)}
-                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-[#475569] hover:bg-[#F8FAFC]"
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-[#475569] hover:bg-[#F8FAFC] cursor-pointer"
                   >
                     <UserCircle size={18} className="text-[#94A3B8]" />
                     {DASHBOARD_DATA.createTask.unassigned}
@@ -211,7 +211,7 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
                     <button
                       key={member.user.id}
                       onClick={() => handleAssign(member.user.id)}
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-[#0F172A] hover:bg-[#F8FAFC]"
+                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-[#0F172A] hover:bg-[#F8FAFC] cursor-pointer"
                     >
                       <div
                         className={`flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-semibold text-white ${getAvatarColor(member.user.id)}`}
