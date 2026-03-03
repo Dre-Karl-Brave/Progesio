@@ -53,9 +53,9 @@ export default function MembersPanel({ members, isOwner, onAddClick, onRemoveMem
           >
             <div
               onClick={() => handleMemberClick(member.user.id)}
-              className={`relative flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold text-white cursor-pointer transition-transform hover:scale-110 ${
+              className={`relative flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold text-white cursor-pointer transition-all hover:scale-105 ${
                 isSelected(member.user.id)
-                  ? 'border-[#0F172A] ring-2 ring-[#0F172A] ring-offset-2'
+                  ? 'border-[#0F172A] shadow-md'
                   : 'border-white'
               } ${getAvatarColor(member.user.id)}`}
             >
@@ -110,7 +110,7 @@ export function MembersList({ members, isOwner, onRemoveMember }) {
           key={member.id}
           className={`flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer transition-colors ${
             isSelected(member.user.id)
-              ? 'bg-[#0F172A] text-white'
+              ? 'bg-[#E5E7EB] border border-[#0F172A]'
               : 'bg-[#F8FAFC] hover:bg-[#E5E7EB]'
           }`}
           onClick={() => handleMemberClick(member.user.id)}
@@ -124,11 +124,11 @@ export function MembersList({ members, isOwner, onRemoveMember }) {
               </div>
             </Tooltip>
             <div>
-              <p className={`text-sm font-medium ${isSelected(member.user.id) ? 'text-white' : 'text-[#0F172A]'}`}>
+              <p className="text-sm font-medium text-[#0F172A]">
                 {member.user.name || member.user.email}
               </p>
               {member.user.name && (
-                <p className={`text-xs ${isSelected(member.user.id) ? 'text-gray-300' : 'text-[#475569]'}`}>
+                <p className="text-xs text-[#475569]">
                   {member.user.email}
                 </p>
               )}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import {
   DndContext,
@@ -26,6 +26,7 @@ import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 
 export default function KanbanBoard({ boardId }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [board, setBoard] = useState(null)
   const [loading, setLoading] = useState(true)
   const [newColumnName, setNewColumnName] = useState('')
@@ -36,6 +37,7 @@ export default function KanbanBoard({ boardId }) {
   const [currentUserId, setCurrentUserId] = useState(null)
 
   const boardRef = useRef(board)
+  const assigneeFilter = searchParams.get('assignee')
 
   const updateBoard = useCallback((updater) => {
     setBoard((prev) => {
@@ -292,6 +294,17 @@ export default function KanbanBoard({ boardId }) {
 
   const isOwner = currentUserId && board.ownerId === currentUserId
 
+  // Filter board columns based on assignee filter
+  const filteredBoard = assigneeFilter
+    ? {
+        ...board,
+        columns: board.columns.map((column) => ({
+          ...column,
+          tasks: (column.tasks || []).filter((task) => task.assigneeId === assigneeFilter),
+        })),
+      }
+    : board
+
   return (
     <DashboardShell>
       <div className="mb-6 flex items-center justify-between">
@@ -337,7 +350,7 @@ export default function KanbanBoard({ boardId }) {
         onDragCancel={handleDragCancel}
       >
         <div className="flex gap-4 overflow-x-auto pb-4">
-          {board.columns.map((column) => (
+          {filteredBoard.columns.map((column) => (
             <KanbanColumn
               key={column.id}
               column={column}
