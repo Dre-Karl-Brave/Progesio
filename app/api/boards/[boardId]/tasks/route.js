@@ -17,7 +17,7 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: 'Board not found' }, { status: 404 })
     }
 
-    const { title, columnId, priority, dueDate, assigneeId, description } = await request.json()
+    const { title, columnId, priority, dueDate, assigneeId, description, sprintId } = await request.json()
 
     if (!title?.trim()) {
       return NextResponse.json({ error: 'Task title is required' }, { status: 400 })
@@ -47,6 +47,16 @@ export async function POST(request, { params }) {
 
     const nextPosition = column.tasks.length > 0 ? column.tasks[0].position + 1 : 0
 
+    // Validate sprint if provided
+    if (sprintId) {
+      const sprint = await prisma.sprint.findFirst({
+        where: { id: sprintId, boardId, deleted: false },
+      })
+      if (!sprint) {
+        return NextResponse.json({ error: 'Sprint not found' }, { status: 404 })
+      }
+    }
+
     const task = await prisma.task.create({
       data: {
         title: title.trim(),
@@ -55,6 +65,7 @@ export async function POST(request, { params }) {
         dueDate: dueDate ? new Date(dueDate) : null,
         position: nextPosition,
         columnId,
+        sprintId: sprintId || null,
         assigneeId: assigneeId || null,
       },
       include: {

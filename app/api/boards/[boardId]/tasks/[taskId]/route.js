@@ -25,7 +25,7 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 })
     }
 
-    const { title, priority, dueDate, columnId, position, assigneeId, description, labels } = await request.json()
+    const { title, priority, dueDate, columnId, position, assigneeId, description, labels, sprintId } = await request.json()
 
     const data = {}
     if (title !== undefined) data.title = title.trim()
@@ -33,6 +33,18 @@ export async function PATCH(request, { params }) {
     if (dueDate !== undefined) data.dueDate = dueDate ? new Date(dueDate) : null
     if (description !== undefined) data.description = description?.trim() || null
     if (labels !== undefined) data.labels = labels
+
+    if (sprintId !== undefined) {
+      if (sprintId) {
+        const sprint = await prisma.sprint.findFirst({
+          where: { id: sprintId, boardId, deleted: false },
+        })
+        if (!sprint) {
+          return NextResponse.json({ error: 'Sprint not found' }, { status: 404 })
+        }
+      }
+      data.sprintId = sprintId || null
+    }
 
     if (assigneeId !== undefined) {
       if (assigneeId) {

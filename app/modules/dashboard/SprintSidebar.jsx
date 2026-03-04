@@ -55,7 +55,8 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
       }
     } catch (error) {
       console.error('Complete sprint error:', error)
-      alert(error.response?.data?.error || 'Failed to complete sprint')
+      const errorMessage = error.response?.data?.error || 'Failed to complete sprint'
+      alert(errorMessage)
     }
   }
 
@@ -114,59 +115,71 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
                         key={sprint.id}
                         onMouseEnter={() => setHoveredSprintId(sprint.id)}
                         onMouseLeave={() => setHoveredSprintId(null)}
-                        className="group relative rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                        className="group relative rounded-lg border border-gray-200 bg-linear-to-br from-white to-gray-50 p-4 shadow-sm hover:shadow-md hover:border-gray-300 transition-all"
                       >
-                        {/* Hover Actions */}
-                        <div
-                          className={`absolute right-2 top-2 flex items-center gap-1 transition-opacity ${
-                            hoveredSprintId === sprint.id ? 'opacity-100' : 'opacity-0'
-                          }`}
-                        >
-                          {sprint.status !== 'COMPLETED' && (
-                            <button
-                              onClick={() => handleCompleteSprint(sprint.id)}
-                              className="rounded-md p-1.5 text-[#475569] transition-colors hover:bg-green-50 hover:text-green-600"
-                              title="Complete Sprint"
-                            >
-                              <CheckCircle size={14} />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => setEditingSprint(sprint)}
-                            className="rounded-md p-1.5 text-[#475569] transition-colors hover:bg-[#E5E7EB] hover:text-[#0F172A]"
-                          >
-                            <Pencil size={14} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteSprint(sprint.id)}
-                            className="rounded-md p-1.5 text-[#475569] transition-colors hover:bg-red-50 hover:text-red-500"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-
-                        <div className="flex items-start justify-between mb-2 pr-16">
+                        {/* Header with Sprint Number and Status */}
+                        <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-[#64748B] bg-gray-100 px-2 py-1 rounded">
+                            <span className="text-sm font-bold text-[#0F172A] border-l-2 border-blue-500 pl-2">
                               Sprint {sprintNumber}
                             </span>
-                            <h3 className="font-semibold text-[#0F172A]">{sprint.name}</h3>
+                            <span
+                              className={`text-xs font-medium px-2.5 py-1 rounded-full ${getStatusColor(sprint.status)}`}
+                            >
+                              {sprint.status}
+                            </span>
                           </div>
-                          <span
-                            className={`text-xs font-medium px-2 py-1 rounded-full ${getStatusColor(sprint.status)}`}
+                          {/* Hover Actions */}
+                          <div
+                            className={`flex items-center gap-1 transition-opacity ${
+                              hoveredSprintId === sprint.id ? 'opacity-100' : 'opacity-0'
+                            }`}
                           >
-                            {sprint.status}
-                          </span>
-                        </div>
-                        {sprint.goal && (
-                          <p className="text-sm text-[#475569] mb-3">{sprint.goal}</p>
-                        )}
-                        <div className="flex items-center gap-4 text-xs text-[#64748B]">
-                          <div>
-                            <span className="font-medium">Start:</span> {formatDate(sprint.startDate)}
+                            {sprint.status !== 'COMPLETED' && (
+                              <button
+                                onClick={() => handleCompleteSprint(sprint.id)}
+                                className="rounded-md p-1.5 text-green-600 transition-colors hover:bg-green-50"
+                                title="Complete Sprint"
+                              >
+                                <CheckCircle size={16} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => setEditingSprint(sprint)}
+                              className="rounded-md p-1.5 text-[#475569] transition-colors hover:bg-[#E5E7EB]"
+                              title="Edit Sprint"
+                            >
+                              <Pencil size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteSprint(sprint.id)}
+                              className="rounded-md p-1.5 text-red-500 transition-colors hover:bg-red-50"
+                              title="Delete Sprint"
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           </div>
-                          <div>
-                            <span className="font-medium">End:</span> {formatDate(sprint.endDate)}
+                        </div>
+
+                        {/* Sprint Name */}
+                        <h3 className="font-bold text-[#0F172A] text-base mb-2">{sprint.name}</h3>
+
+                        {/* Sprint Goal */}
+                        {sprint.goal && (
+                          <p className="text-sm text-[#64748B] mb-3 line-clamp-2">{sprint.goal}</p>
+                        )}
+
+                        {/* Dates */}
+                        <div className="flex items-center gap-3 text-xs">
+                          <div className="flex items-center gap-1.5 text-[#64748B]">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                            <span className="font-medium">Start:</span>
+                            <span>{formatDate(sprint.startDate)}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[#64748B]">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                            <span className="font-medium">End:</span>
+                            <span>{formatDate(sprint.endDate)}</span>
                           </div>
                         </div>
                       </div>
@@ -176,7 +189,7 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
                   <div className="text-center py-12">
                     <p className="text-[#64748B] text-sm">No sprints yet</p>
                     <p className="text-[#94A3B8] text-xs mt-1">
-                      Click "Create Sprint" to get started
+                      Click &quot;Create Sprint&quot; to get started
                     </p>
                   </div>
                 )}

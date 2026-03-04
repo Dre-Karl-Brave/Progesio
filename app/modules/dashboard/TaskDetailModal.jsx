@@ -9,10 +9,11 @@ import { getInitials } from '@/lib/utils'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 import DeleteTaskDialog from './DeleteTaskDialog'
 
-export default function TaskDetailModal({ task, members, onClose, onSave, onDelete }) {
+export default function TaskDetailModal({ task, members, sprints, onClose, onSave, onDelete }) {
   const [title, setTitle] = useState(task.title)
   const [description, setDescription] = useState(task.description || '')
   const [priority, setPriority] = useState(task.priority)
+  const [sprintId, setSprintId] = useState(task.sprintId || '')
   const [assigneeId, setAssigneeId] = useState(task.assigneeId || '')
   const [dueDate, setDueDate] = useState(
     task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''
@@ -31,6 +32,7 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
         title,
         description,
         priority,
+        sprintId: sprintId || null,
         assigneeId: assigneeId || null,
         dueDate: dueDate || null,
         labels,
@@ -204,6 +206,53 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
               />
             </div>
           </div>
+
+          {/* Sprint */}
+          {sprints && sprints.length > 0 && (
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[#0F172A]">
+                Sprint
+              </label>
+              <FormControl fullWidth>
+                <Select
+                  value={sprintId}
+                  onChange={(e) => setSprintId(e.target.value)}
+                  displayEmpty
+                  sx={{
+                    height: '38px',
+                    fontSize: '0.875rem',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#E5E7EB',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#0F172A',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#0F172A',
+                      borderWidth: '2px',
+                    },
+                  }}
+                >
+                  <MenuItem value="" sx={{ fontSize: '0.875rem' }}>
+                    Backlog (No Sprint)
+                  </MenuItem>
+                  {sprints.map((sprint, index) => {
+                    const sprintNumber = sprints.length - index
+                    return (
+                      <MenuItem
+                        key={sprint.id}
+                        value={sprint.id}
+                        sx={{ fontSize: '0.875rem' }}
+                        disabled={sprint.status === 'COMPLETED'}
+                      >
+                        Sprint {sprintNumber} - {sprint.name} ({sprint.status})
+                      </MenuItem>
+                    )
+                  })}
+                </Select>
+              </FormControl>
+            </div>
+          )}
 
           {/* Labels */}
           <div>

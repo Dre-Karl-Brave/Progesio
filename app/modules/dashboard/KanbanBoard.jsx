@@ -407,6 +407,7 @@ export default function KanbanBoard({ boardId }) {
               key={column.id}
               column={column}
               members={board.members || []}
+              sprints={sprints}
               onCreateTask={handleCreateTask}
               onDeleteTask={handleDeleteTask}
               onDeleteColumn={handleDeleteColumn}
@@ -452,6 +453,7 @@ export default function KanbanBoard({ boardId }) {
         <TaskDetailModal
           task={selectedTask}
           members={board.members || []}
+          sprints={sprints}
           onClose={() => setSelectedTask(null)}
           onSave={handleUpdateTask}
           onDelete={handleDeleteTask}

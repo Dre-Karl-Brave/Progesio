@@ -5,9 +5,10 @@ import { Select, MenuItem, FormControl } from '@mui/material'
 import { Input } from '@/components/ui/input'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 
-export default function CreateTaskForm({ members, onSubmit, onCancel }) {
+export default function CreateTaskForm({ members, sprints, onSubmit, onCancel }) {
   const [title, setTitle] = useState('')
   const [priority, setPriority] = useState('medium')
+  const [sprintId, setSprintId] = useState('')
   const [assigneeId, setAssigneeId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -18,9 +19,10 @@ export default function CreateTaskForm({ members, onSubmit, onCancel }) {
     setLoading(true)
     setError('')
     try {
-      await onSubmit({ title, priority, assigneeId: assigneeId || undefined })
+      await onSubmit({ title, priority, sprintId: sprintId || undefined, assigneeId: assigneeId || undefined })
       setTitle('')
       setPriority('medium')
+      setSprintId('')
       setAssigneeId('')
     } catch {
       setError(DASHBOARD_DATA.createTask.errorFallback)
@@ -70,6 +72,48 @@ export default function CreateTaskForm({ members, onSubmit, onCancel }) {
           </Select>
         </FormControl>
       </div>
+      {sprints && sprints.length > 0 && (
+        <div className="mb-4">
+          <FormControl fullWidth>
+            <Select
+              value={sprintId}
+              onChange={(e) => setSprintId(e.target.value)}
+              displayEmpty
+              sx={{
+                height: '38px',
+                fontSize: '0.875rem',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#E5E7EB',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#0F172A',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#0F172A',
+                  borderWidth: '2px',
+                },
+              }}
+            >
+              <MenuItem value="" sx={{ fontSize: '0.875rem' }}>
+                Backlog (No Sprint)
+              </MenuItem>
+              {sprints.map((sprint, index) => {
+                const sprintNumber = sprints.length - index
+                return (
+                  <MenuItem
+                    key={sprint.id}
+                    value={sprint.id}
+                    sx={{ fontSize: '0.875rem' }}
+                    disabled={sprint.status === 'COMPLETED'}
+                  >
+                    Sprint {sprintNumber} - {sprint.name} ({sprint.status})
+                  </MenuItem>
+                )
+              })}
+            </Select>
+          </FormControl>
+        </div>
+      )}
       {members && members.length > 0 && (
         <div className="mb-4">
           <FormControl fullWidth>

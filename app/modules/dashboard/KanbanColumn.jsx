@@ -11,6 +11,7 @@ import DeleteColumnDialog from './DeleteColumnDialog'
 export default function KanbanColumn({
   column,
   members,
+  sprints,
   onCreateTask,
   onDeleteTask,
   onDeleteColumn,
@@ -75,6 +76,7 @@ export default function KanbanColumn({
               <div className='rounded-lg bg-white/90 backdrop-blur-sm p-2 shadow-sm'>
                 <CreateTaskForm
                   members={members}
+                  sprints={sprints}
                   onSubmit={(data) => onCreateTask({ ...data, columnId: column.id })}
                   onCancel={() => setShowForm(false)}
                 />
