@@ -415,19 +415,16 @@ export default function KanbanBoard({ boardId }) {
             <ArrowLeft size={18} />
           </button>
           <div>
-            <div>
-              <h1 className='text-xl font-bold text-[#0F172A]'>{board.name}</h1>
-              {viewingSprint ? (
-                <p className='text-xs text-[#64748B]'>
-                  Viewing: {viewingSprint.name}
-                </p>
-              ) : activeSprint ? (
-                <p className='text-xs text-[#94A3B8]'>
-                  Sprint {sprintNumber} · {activeSprint.name}
-                </p>
-              ) : null}
-            </div>
-            {board.description && <p className='text-sm text-[#475569]'>{board.description}</p>}
+            <h1 className='text-xl font-bold text-[#0F172A]'>{board.name}</h1>
+            {viewingSprint ? (
+              <p className='text-xs text-[#64748B]'>
+                Viewing: {viewingSprint.name}
+              </p>
+            ) : activeSprint ? (
+              <p className='text-xs text-[#94A3B8]'>
+                Sprint {sprintNumber} · {activeSprint.name}
+              </p>
+            ) : null}
           </div>
         </div>
         <div className='flex items-center gap-3'>
