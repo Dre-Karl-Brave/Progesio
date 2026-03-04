@@ -14,7 +14,7 @@ import {
   useSensors,
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, CalendarDays } from 'lucide-react'
 import { Skeleton } from '@mui/material'
 import { Input } from '@/components/ui/input'
 import DashboardShell from './DashboardShell'
@@ -24,6 +24,7 @@ import MembersPanel from './MembersPanel'
 import AddMemberModal from './AddMemberModal'
 import TaskDetailModal from './TaskDetailModal'
 import DeleteBoardDialog from './DeleteBoardDialog'
+import SprintSidebar from './SprintSidebar'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 
 export default function KanbanBoard({ boardId }) {
@@ -38,6 +39,8 @@ export default function KanbanBoard({ boardId }) {
   const [selectedTask, setSelectedTask] = useState(null)
   const [currentUserId, setCurrentUserId] = useState(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showSprintSidebar, setShowSprintSidebar] = useState(false)
+  const [sprints, setSprints] = useState([])
 
   const boardRef = useRef(board)
   const assigneeFilter = searchParams.get('assignee')
@@ -67,10 +70,25 @@ export default function KanbanBoard({ boardId }) {
     }
   }, [boardId, router, updateBoard])
 
+  const fetchSprints = useCallback(async () => {
+    try {
+      const res = await axios.get(`/api/boards/${boardId}/sprints`)
+      setSprints(res.data.sprints)
+    } catch {
+      // ignore
+    }
+  }, [boardId])
+
+  const activeSprint = sprints.find((s) => s.status === 'ACTIVE')
+  const sprintNumber = activeSprint
+    ? sprints.filter((s) => s.createdAt <= activeSprint.createdAt).length
+    : null
+
   useEffect(() => {
     fetchBoard()
+    fetchSprints()
     axios.get('/api/auth/me').then((res) => setCurrentUserId(res.data.user.id)).catch(() => {})
-  }, [fetchBoard])
+  }, [fetchBoard, fetchSprints])
 
   const findColumnByTaskIdFromRef = (taskId) => {
     return boardRef.current?.columns.find((col) => col.tasks?.some((t) => t.id === taskId))
@@ -336,13 +354,34 @@ export default function KanbanBoard({ boardId }) {
             <ArrowLeft size={18} />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-[#0F172A]">{board.name}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-bold text-[#0F172A]">{board.name}</h1>
+              {activeSprint && (
+                <div className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-1.5 border border-blue-200">
+                  <span className="text-sm font-semibold text-blue-900">Sprint {sprintNumber}</span>
+                  <span className="text-xs text-blue-700">·</span>
+                  <span className="text-xs font-medium text-blue-700">{activeSprint.name}</span>
+                  <span
+                    className={`ml-1 inline-block h-2 w-2 rounded-full ${
+                      activeSprint.status === 'ACTIVE' ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+                    }`}
+                  />
+                </div>
+              )}
+            </div>
             {board.description && (
               <p className="text-sm text-[#475569]">{board.description}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowSprintSidebar(true)}
+            className="flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-medium text-[#475569] transition-colors hover:bg-[#F8FAFC] cursor-pointer"
+          >
+            <CalendarDays size={16} />
+            Sprints
+          </button>
           {board.members && (
             <MembersPanel
               members={board.members}
@@ -426,6 +465,19 @@ export default function KanbanBoard({ boardId }) {
           onConfirm={handleDeleteBoard}
         />
       )}
+
+      <SprintSidebar
+        isOpen={showSprintSidebar}
+        onClose={() => setShowSprintSidebar(false)}
+        boardId={boardId}
+        sprints={sprints}
+        onSprintCreated={(sprint) => setSprints((prev) => [sprint, ...prev])}
+        onSprintUpdated={(updatedSprint) =>
+          setSprints((prev) => prev.map((s) => (s.id === updatedSprint.id ? updatedSprint : s)))
+        }
+        onSprintDeleted={(sprintId) => setSprints((prev) => prev.filter((s) => s.id !== sprintId))}
+        onSprintCompleted={() => fetchBoard()}
+      />
 
       <button
         onClick={() => setShowDeleteDialog(true)}

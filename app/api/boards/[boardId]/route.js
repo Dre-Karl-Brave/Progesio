@@ -20,7 +20,10 @@ export async function GET(request, { params }) {
           tasks: {
             where: { deleted: false },
             orderBy: { position: 'asc' },
-            include: { assignee: { select: { id: true, email: true, name: true } } },
+            include: {
+              assignee: { select: { id: true, email: true, name: true } },
+              sprint: { select: { id: true, name: true, status: true } },
+            },
           },
         },
       },

@@ -72,7 +72,10 @@ export async function PATCH(request, { params }) {
     const updated = await prisma.task.update({
       where: { id: taskId },
       data,
-      include: { assignee: { select: { id: true, email: true, name: true } } },
+      include: {
+        assignee: { select: { id: true, email: true, name: true } },
+        sprint: { select: { id: true, name: true, status: true } },
+      },
     })
 
     return NextResponse.json({ task: updated })

@@ -57,7 +57,10 @@ export async function POST(request, { params }) {
         columnId,
         assigneeId: assigneeId || null,
       },
-      include: { assignee: { select: { id: true, email: true, name: true } } },
+      include: {
+        assignee: { select: { id: true, email: true, name: true } },
+        sprint: { select: { id: true, name: true, status: true } },
+      },
     })
 
     return NextResponse.json({ task }, { status: 201 })
