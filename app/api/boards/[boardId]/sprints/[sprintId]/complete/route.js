@@ -31,6 +31,7 @@ export async function POST(request, { params }) {
 
     // Complete the sprint and archive all its tasks
     const now = new Date()
+
     await prisma.$transaction([
       // Update sprint to completed
       prisma.sprint.update({

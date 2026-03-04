@@ -207,9 +207,9 @@ export default function KanbanBoard({ boardId }) {
     fetchBoard()
   }
 
-  const handleCreateTask = async ({ title, priority, columnId, assigneeId }) => {
+  const handleCreateTask = async ({ title, priority, columnId, assigneeId, sprintId }) => {
     const res = await axios.post(`/api/boards/${boardId}/tasks`, {
-      title, priority, columnId, assigneeId: assigneeId || undefined,
+      title, priority, columnId, assigneeId: assigneeId || undefined, sprintId: sprintId || undefined,
     })
     updateBoard((prev) => ({
       ...prev,
@@ -478,9 +478,9 @@ export default function KanbanBoard({ boardId }) {
           setSprints((prev) => prev.map((s) => (s.id === updatedSprint.id ? updatedSprint : s)))
         }
         onSprintDeleted={(sprintId) => setSprints((prev) => prev.filter((s) => s.id !== sprintId))}
-        onSprintCompleted={() => {
-          fetchBoard()
-          fetchSprints()
+        onSprintCompleted={async () => {
+          await fetchBoard()
+          await fetchSprints()
         }}
       />
 

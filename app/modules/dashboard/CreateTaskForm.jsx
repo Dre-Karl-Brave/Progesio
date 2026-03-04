@@ -19,7 +19,8 @@ export default function CreateTaskForm({ members, sprints, onSubmit, onCancel })
     setLoading(true)
     setError('')
     try {
-      await onSubmit({ title, priority, sprintId: sprintId || undefined, assigneeId: assigneeId || undefined })
+      const payload = { title, priority, sprintId: sprintId || undefined, assigneeId: assigneeId || undefined }
+      await onSubmit(payload)
       setTitle('')
       setPriority('medium')
       setSprintId('')

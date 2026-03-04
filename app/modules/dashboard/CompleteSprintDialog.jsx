@@ -11,6 +11,7 @@ export default function CompleteSprintDialog({ sprintName, onClose, onConfirm })
     setLoading(true)
     try {
       await onConfirm()
+      onClose()
     } catch (error) {
       setLoading(false)
     }

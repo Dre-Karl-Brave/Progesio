@@ -52,15 +52,18 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
     try {
       const res = await axios.post(`/api/boards/${boardId}/sprints/${completingSprint.id}/complete`)
       onSprintUpdated(res.data.sprint)
+
+      // Wait for board to refresh before closing dialog
       if (onSprintCompleted) {
-        onSprintCompleted(completingSprint.id)
+        await onSprintCompleted(completingSprint.id)
       }
+
       setCompletingSprint(null)
     } catch (error) {
       console.error('Complete sprint error:', error)
       const errorMessage = error.response?.data?.error || 'Failed to complete sprint'
       alert(errorMessage)
-      setCompletingSprint(null)
+      throw error // Re-throw to keep dialog open on error
     }
   }
 
