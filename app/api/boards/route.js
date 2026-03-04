@@ -13,14 +13,15 @@ export async function GET() {
 
     const boards = await prisma.board.findMany({
       where: {
+        deleted: false,
         OR: [
           { ownerId: user.userId },
-          { members: { some: { userId: user.userId } } },
+          { members: { some: { userId: user.userId, deleted: false } } },
         ],
       },
       include: {
-        columns: { select: { id: true } },
-        members: { select: { id: true } },
+        columns: { where: { deleted: false }, select: { id: true } },
+        members: { where: { deleted: false }, select: { id: true } },
       },
       orderBy: { createdAt: 'desc' },
     })

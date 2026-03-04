@@ -29,16 +29,12 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Cannot remove the board owner' }, { status: 400 })
     }
 
-    await prisma.$transaction([
-      prisma.task.updateMany({
-        where: {
-          assigneeId: member.userId,
-          column: { boardId },
-        },
-        data: { assigneeId: null },
-      }),
-      prisma.boardMember.delete({ where: { id: memberId } }),
-    ])
+    await prisma.boardMember.update({
+      where: { id: memberId },
+      data: {
+        deleted: true,
+      },
+    })
 
     return NextResponse.json({ message: 'Member removed' })
   } catch (error) {

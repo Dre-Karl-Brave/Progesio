@@ -18,7 +18,7 @@ export async function PATCH(request, { params }) {
     }
 
     const column = await prisma.column.findFirst({
-      where: { id: columnId, boardId },
+      where: { id: columnId, boardId, deleted: false },
     })
 
     if (!column) {
@@ -58,14 +58,20 @@ export async function DELETE(request, { params }) {
     }
 
     const column = await prisma.column.findFirst({
-      where: { id: columnId, boardId },
+      where: { id: columnId, boardId, deleted: false },
     })
 
     if (!column) {
       return NextResponse.json({ error: 'Column not found' }, { status: 404 })
     }
 
-    await prisma.column.delete({ where: { id: columnId } })
+    await prisma.column.update({
+      where: { id: columnId },
+      data: {
+        deleted: true,
+        archivedAt: new Date(),
+      },
+    })
 
     return NextResponse.json({ message: 'Column deleted' })
   } catch (error) {

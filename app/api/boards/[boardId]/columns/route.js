@@ -13,7 +13,7 @@ export async function POST(request, { params }) {
     const { boardId } = await params
 
     const board = await getBoardForUser(boardId, user.userId, {
-      columns: { select: { position: true }, orderBy: { position: 'desc' }, take: 1 },
+      columns: { where: { deleted: false }, select: { position: true }, orderBy: { position: 'desc' }, take: 1 },
     })
 
     if (!board) {

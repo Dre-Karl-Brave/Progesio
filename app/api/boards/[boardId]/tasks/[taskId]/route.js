@@ -18,7 +18,7 @@ export async function PATCH(request, { params }) {
     }
 
     const task = await prisma.task.findFirst({
-      where: { id: taskId, column: { boardId } },
+      where: { id: taskId, column: { boardId }, deleted: false },
     })
 
     if (!task) {
@@ -36,8 +36,8 @@ export async function PATCH(request, { params }) {
 
     if (assigneeId !== undefined) {
       if (assigneeId) {
-        const assigneeMember = await prisma.boardMember.findUnique({
-          where: { boardId_userId: { boardId, userId: assigneeId } },
+        const assigneeMember = await prisma.boardMember.findFirst({
+          where: { boardId, userId: assigneeId, deleted: false },
         })
         if (!assigneeMember) {
           return NextResponse.json({ error: 'Assignee is not a board member' }, { status: 400 })
@@ -55,8 +55,8 @@ export async function PATCH(request, { params }) {
 
     if (columnId && columnId !== task.columnId) {
       const targetColumn = await prisma.column.findFirst({
-        where: { id: columnId, boardId },
-        include: { tasks: { select: { position: true }, orderBy: { position: 'desc' }, take: 1 } },
+        where: { id: columnId, boardId, deleted: false },
+        include: { tasks: { where: { deleted: false }, select: { position: true }, orderBy: { position: 'desc' }, take: 1 } },
       })
 
       if (!targetColumn) {
@@ -97,14 +97,20 @@ export async function DELETE(request, { params }) {
     }
 
     const task = await prisma.task.findFirst({
-      where: { id: taskId, column: { boardId } },
+      where: { id: taskId, column: { boardId }, deleted: false },
     })
 
     if (!task) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 })
     }
 
-    await prisma.task.delete({ where: { id: taskId } })
+    await prisma.task.update({
+      where: { id: taskId },
+      data: {
+        deleted: true,
+        archivedAt: new Date(),
+      },
+    })
 
     return NextResponse.json({ message: 'Task deleted' })
   } catch (error) {

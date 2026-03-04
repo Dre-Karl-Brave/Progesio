@@ -28,8 +28,8 @@ export async function POST(request, { params }) {
     }
 
     const column = await prisma.column.findFirst({
-      where: { id: columnId, boardId },
-      include: { tasks: { select: { position: true }, orderBy: { position: 'desc' }, take: 1 } },
+      where: { id: columnId, boardId, deleted: false },
+      include: { tasks: { where: { deleted: false }, select: { position: true }, orderBy: { position: 'desc' }, take: 1 } },
     })
 
     if (!column) {
@@ -37,8 +37,8 @@ export async function POST(request, { params }) {
     }
 
     if (assigneeId) {
-      const assigneeMember = await prisma.boardMember.findUnique({
-        where: { boardId_userId: { boardId, userId: assigneeId } },
+      const assigneeMember = await prisma.boardMember.findFirst({
+        where: { boardId, userId: assigneeId, deleted: false },
       })
       if (!assigneeMember) {
         return NextResponse.json({ error: 'Assignee is not a board member' }, { status: 400 })

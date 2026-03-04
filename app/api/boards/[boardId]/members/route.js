@@ -18,7 +18,7 @@ export async function GET(request, { params }) {
     }
 
     const members = await prisma.boardMember.findMany({
-      where: { boardId },
+      where: { boardId, deleted: false },
       include: { user: { select: { id: true, email: true, name: true } } },
       orderBy: { role: 'asc' },
     })
@@ -62,8 +62,18 @@ export async function POST(request, { params }) {
       where: { boardId_userId: { boardId, userId: targetUser.id } },
     })
 
-    if (existing) {
+    if (existing && !existing.deleted) {
       return NextResponse.json({ error: 'User is already a member' }, { status: 409 })
+    }
+
+    // If member was previously deleted, restore them
+    if (existing && existing.deleted) {
+      const member = await prisma.boardMember.update({
+        where: { id: existing.id },
+        data: { deleted: false, role: 'member' },
+        include: { user: { select: { id: true, email: true, name: true } } },
+      })
+      return NextResponse.json({ member }, { status: 201 })
     }
 
     const member = await prisma.boardMember.create({

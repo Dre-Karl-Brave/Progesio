@@ -14,15 +14,18 @@ export async function GET(request, { params }) {
 
     const board = await getBoardForUser(boardId, user.userId, {
       columns: {
+        where: { deleted: false },
         orderBy: { position: 'asc' },
         include: {
           tasks: {
+            where: { deleted: false },
             orderBy: { position: 'asc' },
             include: { assignee: { select: { id: true, email: true, name: true } } },
           },
         },
       },
       members: {
+        where: { deleted: false },
         include: { user: { select: { id: true, email: true, name: true } } },
         orderBy: { role: 'asc' },
       },
@@ -53,7 +56,13 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Board not found' }, { status: 404 })
     }
 
-    await prisma.board.delete({ where: { id: boardId } })
+    await prisma.board.update({
+      where: { id: boardId },
+      data: {
+        deleted: true,
+        archivedAt: new Date(),
+      },
+    })
 
     return NextResponse.json({ message: 'Board deleted' })
   } catch (error) {
