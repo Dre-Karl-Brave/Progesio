@@ -208,7 +208,22 @@ export default function TaskDetailModal({ task, members, sprints, onClose, onSav
           </div>
 
           {/* Sprint */}
-          {sprints && sprints.length > 0 && (
+          {task.sprint?.status === 'COMPLETED' ? (
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[#0F172A]">
+                Sprint
+              </label>
+              <div className="flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-gray-50 px-3 py-2">
+                <span className="text-sm text-[#475569]">{task.sprint.name}</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                  COMPLETED
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-[#64748B]">
+                This task is in a completed sprint and cannot be reassigned
+              </p>
+            </div>
+          ) : sprints && sprints.filter(s => s.status !== 'COMPLETED').length > 0 && (
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[#0F172A]">
                 Sprint
@@ -236,19 +251,21 @@ export default function TaskDetailModal({ task, members, sprints, onClose, onSav
                   <MenuItem value="" sx={{ fontSize: '0.875rem' }}>
                     Backlog (No Sprint)
                   </MenuItem>
-                  {sprints.map((sprint, index) => {
-                    const sprintNumber = sprints.length - index
-                    return (
-                      <MenuItem
-                        key={sprint.id}
-                        value={sprint.id}
-                        sx={{ fontSize: '0.875rem' }}
-                        disabled={sprint.status === 'COMPLETED'}
-                      >
-                        Sprint {sprintNumber} - {sprint.name} ({sprint.status})
-                      </MenuItem>
-                    )
-                  })}
+                  {sprints
+                    .filter(sprint => sprint.status !== 'COMPLETED')
+                    .map((sprint, index) => {
+                      const activeSprints = sprints.filter(s => s.status !== 'COMPLETED')
+                      const sprintNumber = activeSprints.length - index
+                      return (
+                        <MenuItem
+                          key={sprint.id}
+                          value={sprint.id}
+                          sx={{ fontSize: '0.875rem' }}
+                        >
+                          Sprint {sprintNumber} - {sprint.name} ({sprint.status})
+                        </MenuItem>
+                      )
+                    })}
                 </Select>
               </FormControl>
             </div>

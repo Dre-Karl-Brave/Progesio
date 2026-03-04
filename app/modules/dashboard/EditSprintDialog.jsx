@@ -7,6 +7,7 @@ import { X } from 'lucide-react'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { Select, MenuItem, FormControl } from '@mui/material'
 
 export default function EditSprintDialog({ boardId, sprint, onClose, onUpdated }) {
   const [name, setName] = useState(sprint.name)
@@ -154,16 +155,30 @@ export default function EditSprintDialog({ boardId, sprint, onClose, onUpdated }
                   <label className="mb-2 block text-sm font-medium text-[#0F172A]">
                     Status
                   </label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    disabled={loading}
-                    className="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F172A] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <option value="PLANNED">Planned</option>
-                    <option value="ACTIVE">Active</option>
-                    <option value="COMPLETED">Completed</option>
-                  </select>
+                  <FormControl fullWidth disabled={loading}>
+                    <Select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                      sx={{
+                        height: '38px',
+                        fontSize: '0.875rem',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#E5E7EB',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#0F172A',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#0F172A',
+                          borderWidth: '2px',
+                        },
+                      }}
+                    >
+                      <MenuItem value="PLANNED" sx={{ fontSize: '0.875rem' }}>Planned</MenuItem>
+                      <MenuItem value="ACTIVE" sx={{ fontSize: '0.875rem' }}>Active</MenuItem>
+                      <MenuItem value="COMPLETED" sx={{ fontSize: '0.875rem' }}>Completed</MenuItem>
+                    </Select>
+                  </FormControl>
                 </div>
 
                 {/* Error Message */}

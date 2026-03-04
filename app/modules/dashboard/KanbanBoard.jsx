@@ -478,7 +478,10 @@ export default function KanbanBoard({ boardId }) {
           setSprints((prev) => prev.map((s) => (s.id === updatedSprint.id ? updatedSprint : s)))
         }
         onSprintDeleted={(sprintId) => setSprints((prev) => prev.filter((s) => s.id !== sprintId))}
-        onSprintCompleted={() => fetchBoard()}
+        onSprintCompleted={() => {
+          fetchBoard()
+          fetchSprints()
+        }}
       />
 
       <button

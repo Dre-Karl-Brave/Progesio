@@ -7,6 +7,7 @@ import { X } from 'lucide-react'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { Select, MenuItem, FormControl } from '@mui/material'
 
 export default function CreateSprintDialog({ boardId, onClose, onCreated }) {
   const [name, setName] = useState('')

@@ -72,7 +72,7 @@ export default function CreateTaskForm({ members, sprints, onSubmit, onCancel })
           </Select>
         </FormControl>
       </div>
-      {sprints && sprints.length > 0 && (
+      {sprints && sprints.filter(s => s.status !== 'COMPLETED').length > 0 && (
         <div className="mb-4">
           <FormControl fullWidth>
             <Select
@@ -97,19 +97,21 @@ export default function CreateTaskForm({ members, sprints, onSubmit, onCancel })
               <MenuItem value="" sx={{ fontSize: '0.875rem' }}>
                 Backlog (No Sprint)
               </MenuItem>
-              {sprints.map((sprint, index) => {
-                const sprintNumber = sprints.length - index
-                return (
-                  <MenuItem
-                    key={sprint.id}
-                    value={sprint.id}
-                    sx={{ fontSize: '0.875rem' }}
-                    disabled={sprint.status === 'COMPLETED'}
-                  >
-                    Sprint {sprintNumber} - {sprint.name} ({sprint.status})
-                  </MenuItem>
-                )
-              })}
+              {sprints
+                .filter(sprint => sprint.status !== 'COMPLETED')
+                .map((sprint, index) => {
+                  const activeSprints = sprints.filter(s => s.status !== 'COMPLETED')
+                  const sprintNumber = activeSprints.length - index
+                  return (
+                    <MenuItem
+                      key={sprint.id}
+                      value={sprint.id}
+                      sx={{ fontSize: '0.875rem' }}
+                    >
+                      Sprint {sprintNumber} - {sprint.name} ({sprint.status})
+                    </MenuItem>
+                  )
+                })}
             </Select>
           </FormControl>
         </div>

@@ -5,11 +5,13 @@ import { X, Plus, Pencil, Trash2, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
 import CreateSprintDialog from './CreateSprintDialog'
 import EditSprintDialog from './EditSprintDialog'
+import CompleteSprintDialog from './CompleteSprintDialog'
 import axios from 'axios'
 
 export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSprintCreated, onSprintUpdated, onSprintDeleted, onSprintCompleted }) {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingSprint, setEditingSprint] = useState(null)
+  const [completingSprint, setCompletingSprint] = useState(null)
   const [hoveredSprintId, setHoveredSprintId] = useState(null)
 
   const getStatusColor = (status) => {
@@ -44,19 +46,21 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
     }
   }
 
-  const handleCompleteSprint = async (sprintId) => {
-    if (!confirm('Are you sure you want to complete this sprint? All tasks in this sprint will be archived.')) return
+  const handleCompleteSprint = async () => {
+    if (!completingSprint) return
 
     try {
-      const res = await axios.post(`/api/boards/${boardId}/sprints/${sprintId}/complete`)
+      const res = await axios.post(`/api/boards/${boardId}/sprints/${completingSprint.id}/complete`)
       onSprintUpdated(res.data.sprint)
       if (onSprintCompleted) {
-        onSprintCompleted(sprintId)
+        onSprintCompleted(completingSprint.id)
       }
+      setCompletingSprint(null)
     } catch (error) {
       console.error('Complete sprint error:', error)
       const errorMessage = error.response?.data?.error || 'Failed to complete sprint'
       alert(errorMessage)
+      setCompletingSprint(null)
     }
   }
 
@@ -137,7 +141,7 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
                           >
                             {sprint.status !== 'COMPLETED' && (
                               <button
-                                onClick={() => handleCompleteSprint(sprint.id)}
+                                onClick={() => setCompletingSprint(sprint)}
                                 className="rounded-md p-1.5 text-green-600 transition-colors hover:bg-green-50"
                                 title="Complete Sprint"
                               >
@@ -219,6 +223,14 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
             onSprintUpdated(updatedSprint)
             setEditingSprint(null)
           }}
+        />
+      )}
+
+      {completingSprint && (
+        <CompleteSprintDialog
+          sprintName={completingSprint.name}
+          onClose={() => setCompletingSprint(null)}
+          onConfirm={handleCompleteSprint}
         />
       )}
     </>

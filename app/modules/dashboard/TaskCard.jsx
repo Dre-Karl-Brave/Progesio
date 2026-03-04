@@ -86,7 +86,8 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
     setShowAssigneeDropdown((prev) => !prev)
   }
 
-  const handleAssign = (userId) => {
+  const handleAssign = (e, userId) => {
+    e.stopPropagation()
     setShowAssigneeDropdown(false)
     if (onUpdate) {
       onUpdate(task.id, { assigneeId: userId || null })
@@ -198,7 +199,7 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
               {showAssigneeDropdown && members && (
                 <div className='absolute right-0 top-8 z-50 w-48 rounded-lg border border-[#E5E7EB] bg-white py-1 shadow-lg'>
                   <button
-                    onClick={() => handleAssign(null)}
+                    onClick={(e) => handleAssign(e, null)}
                     className='flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-[#475569] hover:bg-[#F8FAFC] cursor-pointer'
                   >
                     <UserCircle size={18} className='text-[#94A3B8]' />
@@ -207,7 +208,7 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
                   {members.map((member) => (
                     <button
                       key={member.user.id}
-                      onClick={() => handleAssign(member.user.id)}
+                      onClick={(e) => handleAssign(e, member.user.id)}
                       className='flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-[#0F172A] hover:bg-[#F8FAFC] cursor-pointer'
                     >
                       <div
