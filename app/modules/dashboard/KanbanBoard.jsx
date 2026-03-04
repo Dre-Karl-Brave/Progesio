@@ -14,7 +14,7 @@ import {
   useSensors
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
-import { ArrowLeft, Plus, Trash2, CalendarDays } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, CalendarDays, X } from 'lucide-react'
 import { Skeleton } from '@mui/material'
 import { Input } from '@/components/ui/input'
 import DashboardShell from './DashboardShell'
@@ -41,6 +41,7 @@ export default function KanbanBoard({ boardId }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showSprintSidebar, setShowSprintSidebar] = useState(false)
   const [sprints, setSprints] = useState([])
+  const [viewingSprint, setViewingSprint] = useState(null)
 
   const boardRef = useRef(board)
   const assigneeFilter = searchParams.get('assignee')
@@ -338,16 +339,38 @@ export default function KanbanBoard({ boardId }) {
 
   const isOwner = currentUserId && board.ownerId === currentUserId
 
-  // Filter board columns based on assignee filter
-  const filteredBoard = assigneeFilter
-    ? {
-        ...board,
-        columns: board.columns.map((column) => ({
-          ...column,
-          tasks: (column.tasks || []).filter((task) => task.assigneeId === assigneeFilter)
-        }))
-      }
-    : board
+  const handleViewSprint = (sprint) => {
+    setViewingSprint(sprint)
+  }
+
+  const handleDismissSprintView = () => {
+    setViewingSprint(null)
+  }
+
+  // Filter board columns based on assignee filter and viewing sprint
+  let filteredBoard = board
+
+  // Apply sprint filter first if viewing a sprint
+  if (viewingSprint) {
+    filteredBoard = {
+      ...filteredBoard,
+      columns: filteredBoard.columns.map((column) => ({
+        ...column,
+        tasks: (column.tasks || []).filter((task) => task.sprintId === viewingSprint.id)
+      }))
+    }
+  }
+
+  // Then apply assignee filter if active
+  if (assigneeFilter) {
+    filteredBoard = {
+      ...filteredBoard,
+      columns: filteredBoard.columns.map((column) => ({
+        ...column,
+        tasks: (column.tasks || []).filter((task) => task.assigneeId === assigneeFilter)
+      }))
+    }
+  }
 
   return (
     <DashboardShell>
@@ -389,6 +412,29 @@ export default function KanbanBoard({ boardId }) {
           )}
         </div>
       </div>
+
+      {viewingSprint && (
+        <div className='mb-4 flex items-center justify-between rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] px-4 py-3'>
+          <div className='flex items-center gap-2'>
+            <CalendarDays size={18} className='text-[#64748B]' />
+            <div>
+              <p className='text-sm font-semibold text-[#0F172A]'>
+                Viewing Sprint: {viewingSprint.name}
+              </p>
+              <p className='text-xs text-[#64748B]'>
+                Only tasks from this sprint are shown
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleDismissSprintView}
+            className='flex items-center gap-1.5 rounded-md border border-[#E5E7EB] bg-white px-3 py-1.5 text-sm font-medium text-[#475569] transition-colors hover:bg-[#0F172A] hover:text-white hover:border-[#0F172A] cursor-pointer'
+          >
+            <X size={14} />
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <DndContext
         sensors={sensors}
@@ -472,6 +518,7 @@ export default function KanbanBoard({ boardId }) {
           await fetchBoard()
           await fetchSprints()
         }}
+        onViewSprint={handleViewSprint}
       />
 
       <button

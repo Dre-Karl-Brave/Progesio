@@ -1,14 +1,14 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Plus, Pencil, Trash2, CheckCircle } from 'lucide-react'
+import { X, Plus, Pencil, Trash2, CheckCircle, Eye } from 'lucide-react'
 import { useState } from 'react'
 import CreateSprintDialog from './CreateSprintDialog'
 import EditSprintDialog from './EditSprintDialog'
 import CompleteSprintDialog from './CompleteSprintDialog'
 import axios from 'axios'
 
-export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSprintCreated, onSprintUpdated, onSprintDeleted, onSprintCompleted }) {
+export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSprintCreated, onSprintUpdated, onSprintDeleted, onSprintCompleted, onViewSprint }) {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingSprint, setEditingSprint] = useState(null)
   const [completingSprint, setCompletingSprint] = useState(null)
@@ -142,6 +142,18 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
                               hoveredSprintId === sprint.id ? 'opacity-100' : 'opacity-0'
                             }`}
                           >
+                            {sprint.status === 'COMPLETED' && (
+                              <button
+                                onClick={() => {
+                                  onViewSprint(sprint)
+                                  onClose()
+                                }}
+                                className="rounded-md p-1.5 text-blue-600 transition-colors hover:bg-blue-50 cursor-pointer"
+                                title="View Sprint"
+                              >
+                                <Eye size={16} />
+                              </button>
+                            )}
                             {sprint.status !== 'COMPLETED' && (
                               <button
                                 onClick={() => setCompletingSprint(sprint)}
