@@ -253,9 +253,8 @@ export default function TaskDetailModal({ task, members, sprints, onClose, onSav
                   </MenuItem>
                   {sprints
                     .filter(sprint => sprint.status !== 'COMPLETED')
-                    .map((sprint, index) => {
-                      const activeSprints = sprints.filter(s => s.status !== 'COMPLETED')
-                      const sprintNumber = activeSprints.length - index
+                    .map((sprint) => {
+                      const sprintNumber = sprints.filter((s) => s.createdAt <= sprint.createdAt).length
                       return (
                         <MenuItem
                           key={sprint.id}

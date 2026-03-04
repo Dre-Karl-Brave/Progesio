@@ -8,8 +8,9 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { Select, MenuItem, FormControl } from '@mui/material'
+import { toast } from '@/app/modules/toast/toastUtils'
 
-export default function EditSprintDialog({ boardId, sprint, onClose, onUpdated }) {
+export default function EditSprintDialog({ boardId, sprint, sprints, onClose, onUpdated }) {
   const [name, setName] = useState(sprint.name)
   const [goal, setGoal] = useState(sprint.goal || '')
   const [startDate, setStartDate] = useState(new Date(sprint.startDate))
@@ -40,6 +41,18 @@ export default function EditSprintDialog({ boardId, sprint, onClose, onUpdated }
     if (endDate <= startDate) {
       setError('End date must be after start date')
       return
+    }
+
+    // Check if there's already an active sprint (excluding the current sprint)
+    if (status === 'ACTIVE' && sprints) {
+      const hasOtherActiveSprint = sprints.some(
+        (s) => s.status === 'ACTIVE' && s.id !== sprint.id
+      )
+      if (hasOtherActiveSprint) {
+        toast.error('Cannot set sprint to active. There is already an active sprint.')
+        setError('Cannot set sprint to active. There is already an active sprint.')
+        return
+      }
     }
 
     setLoading(true)

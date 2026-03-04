@@ -11,7 +11,7 @@ import {
   TouchSensor,
   KeyboardSensor,
   useSensor,
-  useSensors,
+  useSensors
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import { ArrowLeft, Plus, Trash2, CalendarDays } from 'lucide-react'
@@ -80,14 +80,15 @@ export default function KanbanBoard({ boardId }) {
   }, [boardId])
 
   const activeSprint = sprints.find((s) => s.status === 'ACTIVE')
-  const sprintNumber = activeSprint
-    ? sprints.filter((s) => s.createdAt <= activeSprint.createdAt).length
-    : null
+  const sprintNumber = activeSprint ? sprints.filter((s) => s.createdAt <= activeSprint.createdAt).length : null
 
   useEffect(() => {
     fetchBoard()
     fetchSprints()
-    axios.get('/api/auth/me').then((res) => setCurrentUserId(res.data.user.id)).catch(() => {})
+    axios
+      .get('/api/auth/me')
+      .then((res) => setCurrentUserId(res.data.user.id))
+      .catch(() => {})
   }, [fetchBoard, fetchSprints])
 
   const findColumnByTaskIdFromRef = (taskId) => {
@@ -169,15 +170,13 @@ export default function KanbanBoard({ boardId }) {
 
           updateBoard((prev) => ({
             ...prev,
-            columns: prev.columns.map((col) =>
-              col.id === sourceColumn.id ? { ...col, tasks: reordered } : col
-            ),
+            columns: prev.columns.map((col) => (col.id === sourceColumn.id ? { ...col, tasks: reordered } : col))
           }))
 
           try {
             await axios.patch(`/api/boards/${boardId}/tasks/${activeId}`, {
               columnId: sourceColumn.id,
-              position: newIndex,
+              position: newIndex
             })
           } catch {
             fetchBoard()
@@ -195,7 +194,7 @@ export default function KanbanBoard({ boardId }) {
     try {
       await axios.patch(`/api/boards/${boardId}/tasks/${activeId}`, {
         columnId: currentColumn.id,
-        position: newPosition >= 0 ? newPosition : 0,
+        position: newPosition >= 0 ? newPosition : 0
       })
     } catch {
       fetchBoard()
@@ -209,13 +208,17 @@ export default function KanbanBoard({ boardId }) {
 
   const handleCreateTask = async ({ title, priority, columnId, assigneeId, sprintId }) => {
     const res = await axios.post(`/api/boards/${boardId}/tasks`, {
-      title, priority, columnId, assigneeId: assigneeId || undefined, sprintId: sprintId || undefined,
+      title,
+      priority,
+      columnId,
+      assigneeId: assigneeId || undefined,
+      sprintId: sprintId || undefined
     })
     updateBoard((prev) => ({
       ...prev,
       columns: prev.columns.map((col) =>
         col.id === columnId ? { ...col, tasks: [...(col.tasks || []), res.data.task] } : col
-      ),
+      )
     }))
   }
 
@@ -225,8 +228,8 @@ export default function KanbanBoard({ boardId }) {
       ...prev,
       columns: prev.columns.map((col) => ({
         ...col,
-        tasks: (col.tasks || []).filter((t) => t.id !== taskId),
-      })),
+        tasks: (col.tasks || []).filter((t) => t.id !== taskId)
+      }))
     }))
   }
 
@@ -236,8 +239,8 @@ export default function KanbanBoard({ boardId }) {
       ...prev,
       columns: prev.columns.map((col) => ({
         ...col,
-        tasks: (col.tasks || []).map((t) => (t.id === taskId ? { ...t, ...res.data.task } : t)),
-      })),
+        tasks: (col.tasks || []).map((t) => (t.id === taskId ? { ...t, ...res.data.task } : t))
+      }))
     }))
   }
 
@@ -264,7 +267,7 @@ export default function KanbanBoard({ boardId }) {
     await axios.delete(`/api/boards/${boardId}/columns/${columnId}`)
     updateBoard((prev) => ({
       ...prev,
-      columns: prev.columns.filter((col) => col.id !== columnId),
+      columns: prev.columns.filter((col) => col.id !== columnId)
     }))
   }
 
@@ -277,7 +280,7 @@ export default function KanbanBoard({ boardId }) {
     const res = await axios.post(`/api/boards/${boardId}/members`, { email })
     updateBoard((prev) => ({
       ...prev,
-      members: [...prev.members, res.data.member],
+      members: [...prev.members, res.data.member]
     }))
   }
 
@@ -292,8 +295,8 @@ export default function KanbanBoard({ boardId }) {
           ...col,
           tasks: (col.tasks || []).map((t) =>
             t.assigneeId === removedMember?.userId ? { ...t, assigneeId: null, assignee: null } : t
-          ),
-        })),
+          )
+        }))
       }
     })
   }
@@ -301,24 +304,27 @@ export default function KanbanBoard({ boardId }) {
   if (loading) {
     return (
       <DashboardShell>
-        <div className="mb-6 mt-5">
-          <div className="flex items-center gap-3">
-            <Skeleton variant="circular" width={36} height={36} />
-            <div className="flex-1">
-              <Skeleton variant="text" width={200} height={32} />
-              <Skeleton variant="text" width={300} height={20} />
+        <div className='mb-6 mt-5'>
+          <div className='flex items-center gap-3'>
+            <Skeleton variant='circular' width={36} height={36} />
+            <div className='flex-1'>
+              <Skeleton variant='text' width={200} height={32} />
+              <Skeleton variant='text' width={300} height={20} />
             </div>
           </div>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className='flex gap-4 overflow-x-auto pb-4'>
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="w-72 shrink-0 rounded-xl bg-linear-to-b from-[#F8FAFC] to-[#F1F5F9] shadow-sm min-h-150">
-              <div className="bg-white/80 backdrop-blur-sm rounded-t-xl border-b border-[#E5E7EB] px-3 py-3">
-                <Skeleton variant="text" width={120} height={24} />
+            <div
+              key={i}
+              className='w-72 shrink-0 rounded-xl bg-linear-to-b from-[#F8FAFC] to-[#F1F5F9] shadow-sm min-h-150'
+            >
+              <div className='bg-white/80 backdrop-blur-sm rounded-t-xl border-b border-[#E5E7EB] px-3 py-3'>
+                <Skeleton variant='text' width={120} height={24} />
               </div>
-              <div className="p-3 space-y-2">
+              <div className='p-3 space-y-2'>
                 {[1, 2, 3].map((j) => (
-                  <Skeleton key={j} variant="rounded" width="100%" height={120} />
+                  <Skeleton key={j} variant='rounded' width='100%' height={120} />
                 ))}
               </div>
             </div>
@@ -338,46 +344,37 @@ export default function KanbanBoard({ boardId }) {
         ...board,
         columns: board.columns.map((column) => ({
           ...column,
-          tasks: (column.tasks || []).filter((task) => task.assigneeId === assigneeFilter),
-        })),
+          tasks: (column.tasks || []).filter((task) => task.assigneeId === assigneeFilter)
+        }))
       }
     : board
 
   return (
     <DashboardShell>
-      <div className="mb-6 flex items-center justify-between mt-5">
-        <div className="flex items-center gap-3">
+      <div className='mb-6 flex items-center justify-between mt-5'>
+        <div className='flex items-center gap-3'>
           <button
             onClick={() => router.push('/dashboard')}
-            className="rounded-md p-1.5 text-[#475569] transition-colors hover:bg-[#E5E7EB] hover:text-[#0F172A] cursor-pointer"
+            className='rounded-md p-1.5 text-[#475569] transition-colors hover:bg-[#E5E7EB] hover:text-[#0F172A] cursor-pointer'
           >
             <ArrowLeft size={18} />
           </button>
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-[#0F172A]">{board.name}</h1>
+            <div>
+              <h1 className='text-xl font-bold text-[#0F172A]'>{board.name}</h1>
               {activeSprint && (
-                <div className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-1.5 border border-blue-200">
-                  <span className="text-sm font-semibold text-blue-900">Sprint {sprintNumber}</span>
-                  <span className="text-xs text-blue-700">·</span>
-                  <span className="text-xs font-medium text-blue-700">{activeSprint.name}</span>
-                  <span
-                    className={`ml-1 inline-block h-2 w-2 rounded-full ${
-                      activeSprint.status === 'ACTIVE' ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
-                    }`}
-                  />
-                </div>
+                <p className='text-xs text-[#94A3B8]'>
+                  Sprint {sprintNumber} · {activeSprint.name}
+                </p>
               )}
             </div>
-            {board.description && (
-              <p className="text-sm text-[#475569]">{board.description}</p>
-            )}
+            {board.description && <p className='text-sm text-[#475569]'>{board.description}</p>}
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className='flex items-center gap-3'>
           <button
             onClick={() => setShowSprintSidebar(true)}
-            className="flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-medium text-[#475569] transition-colors hover:bg-[#F8FAFC] cursor-pointer"
+            className='flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-medium text-[#475569] transition-colors hover:bg-[#F8FAFC] cursor-pointer'
           >
             <CalendarDays size={16} />
             Sprints
@@ -401,7 +398,7 @@ export default function KanbanBoard({ boardId }) {
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className='flex gap-4 overflow-x-auto pb-4'>
           {filteredBoard.columns.map((column) => (
             <KanbanColumn
               key={column.id}
@@ -416,18 +413,18 @@ export default function KanbanBoard({ boardId }) {
             />
           ))}
 
-          <div className="w-72 shrink-0">
-            <form onSubmit={handleAddColumn} className="flex gap-2">
+          <div className='w-72 shrink-0'>
+            <form onSubmit={handleAddColumn} className='flex gap-2'>
               <Input
                 value={newColumnName}
                 onChange={(e) => setNewColumnName(e.target.value)}
                 placeholder={DASHBOARD_DATA.kanban.addColumnPlaceholder}
-                className="flex-1"
+                className='flex-1'
               />
               <button
-                type="submit"
+                type='submit'
                 disabled={addingColumn || !newColumnName.trim()}
-                className="flex items-center gap-1 rounded-md bg-[#0F172A] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0F172A]/90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                className='flex items-center gap-1 rounded-md bg-[#0F172A] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0F172A]/90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed'
               >
                 <Plus size={14} />
               </button>
@@ -436,18 +433,11 @@ export default function KanbanBoard({ boardId }) {
         </div>
 
         <DragOverlay>
-          {activeTask ? (
-            <TaskCard task={activeTask} onDelete={() => {}} isDragOverlay />
-          ) : null}
+          {activeTask ? <TaskCard task={activeTask} onDelete={() => {}} isDragOverlay /> : null}
         </DragOverlay>
       </DndContext>
 
-      {showAddMemberModal && (
-        <AddMemberModal
-          onClose={() => setShowAddMemberModal(false)}
-          onAdd={handleAddMember}
-        />
-      )}
+      {showAddMemberModal && <AddMemberModal onClose={() => setShowAddMemberModal(false)} onAdd={handleAddMember} />}
 
       {selectedTask && (
         <TaskDetailModal
@@ -486,7 +476,7 @@ export default function KanbanBoard({ boardId }) {
 
       <button
         onClick={() => setShowDeleteDialog(true)}
-        className="fixed bottom-6 right-6 flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-500 shadow-lg transition-all hover:bg-red-50 hover:shadow-xl cursor-pointer"
+        className='fixed bottom-6 right-6 flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-500 shadow-lg transition-all hover:bg-red-50 hover:shadow-xl cursor-pointer'
       >
         <Trash2 size={16} />
         Delete Board

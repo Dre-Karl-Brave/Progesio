@@ -115,8 +115,8 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
               {/* Sprint List */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {sprints && sprints.length > 0 ? (
-                  sprints.map((sprint, index) => {
-                    const sprintNumber = sprints.length - index
+                  sprints.map((sprint) => {
+                    const sprintNumber = sprints.filter((s) => s.createdAt <= sprint.createdAt).length
                     return (
                       <div
                         key={sprint.id}
@@ -145,7 +145,7 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
                             {sprint.status !== 'COMPLETED' && (
                               <button
                                 onClick={() => setCompletingSprint(sprint)}
-                                className="rounded-md p-1.5 text-green-600 transition-colors hover:bg-green-50"
+                                className="rounded-md p-1.5 text-green-600 transition-colors hover:bg-green-50 cursor-pointer"
                                 title="Complete Sprint"
                               >
                                 <CheckCircle size={16} />
@@ -209,6 +209,7 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
       {showCreateDialog && (
         <CreateSprintDialog
           boardId={boardId}
+          sprints={sprints}
           onClose={() => setShowCreateDialog(false)}
           onCreated={(sprint) => {
             onSprintCreated(sprint)
@@ -221,6 +222,7 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
         <EditSprintDialog
           boardId={boardId}
           sprint={editingSprint}
+          sprints={sprints}
           onClose={() => setEditingSprint(null)}
           onUpdated={(updatedSprint) => {
             onSprintUpdated(updatedSprint)
