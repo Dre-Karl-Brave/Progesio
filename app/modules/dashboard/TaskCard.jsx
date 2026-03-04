@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Trash2, Calendar, UserCircle } from 'lucide-react'
-import { Snackbar, Alert } from '@mui/material'
 import { getInitials } from '@/lib/utils'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 import DeleteTaskDialog from './DeleteTaskDialog'
@@ -39,7 +38,6 @@ function parseLabel(label) {
 export default function TaskCard({ task, onDelete, onClick, isDragOverlay, members, onUpdate }) {
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false)
   const dropdownRef = useRef(null)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id })
@@ -77,7 +75,6 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
   const confirmDelete = () => {
     onDelete(task.id)
     setShowDeleteDialog(false)
-    setShowDeleteSuccess(true)
   }
 
   const handleClick = (e) => {
@@ -238,19 +235,6 @@ export default function TaskCard({ task, onDelete, onClick, isDragOverlay, membe
           />
         </div>
       )}
-
-      <div onClick={(e) => e.stopPropagation()}>
-        <Snackbar
-          open={showDeleteSuccess}
-          autoHideDuration={3000}
-          onClose={() => setShowDeleteSuccess(false)}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        >
-          <Alert onClose={() => setShowDeleteSuccess(false)} severity='success' sx={{ width: '100%' }}>
-            Task deleted successfully!
-          </Alert>
-        </Snackbar>
-      </div>
     </div>
   )
 }
