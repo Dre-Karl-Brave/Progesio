@@ -153,14 +153,14 @@ export default function SprintSidebar({ isOpen, onClose, boardId, sprints, onSpr
                             )}
                             <button
                               onClick={() => setEditingSprint(sprint)}
-                              className="rounded-md p-1.5 text-[#475569] transition-colors hover:bg-[#E5E7EB]"
+                              className="rounded-md p-1.5 text-[#475569] transition-colors hover:bg-[#E5E7EB] cursor-pointer"
                               title="Edit Sprint"
                             >
                               <Pencil size={16} />
                             </button>
                             <button
                               onClick={() => handleDeleteSprint(sprint.id)}
-                              className="rounded-md p-1.5 text-red-500 transition-colors hover:bg-red-50"
+                              className="rounded-md p-1.5 text-red-500 transition-colors hover:bg-red-50 cursor-pointer"
                               title="Delete Sprint"
                             >
                               <Trash2 size={16} />
