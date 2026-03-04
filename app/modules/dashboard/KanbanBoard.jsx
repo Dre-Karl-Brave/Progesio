@@ -15,6 +15,7 @@ import {
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { Skeleton, Snackbar, Alert } from '@mui/material'
 import { Input } from '@/components/ui/input'
 import DashboardShell from './DashboardShell'
 import KanbanColumn from './KanbanColumn'
@@ -37,6 +38,7 @@ export default function KanbanBoard({ boardId }) {
   const [selectedTask, setSelectedTask] = useState(null)
   const [currentUserId, setCurrentUserId] = useState(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showDeleteToast, setShowDeleteToast] = useState(false)
 
   const boardRef = useRef(board)
   const assigneeFilter = searchParams.get('assignee')
@@ -251,7 +253,10 @@ export default function KanbanBoard({ boardId }) {
 
   const handleDeleteBoard = async () => {
     await axios.delete(`/api/boards/${boardId}`)
-    router.push('/dashboard')
+    setShowDeleteToast(true)
+    setTimeout(() => {
+      router.push('/dashboard')
+    }, 2000)
   }
 
   const handleAddMember = async (email) => {
@@ -282,7 +287,29 @@ export default function KanbanBoard({ boardId }) {
   if (loading) {
     return (
       <DashboardShell>
-        <div className="py-20 text-center text-sm text-[#475569]">Loading...</div>
+        <div className="mb-6 mt-5">
+          <div className="flex items-center gap-3">
+            <Skeleton variant="circular" width={36} height={36} />
+            <div className="flex-1">
+              <Skeleton variant="text" width={200} height={32} />
+              <Skeleton variant="text" width={300} height={20} />
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="w-72 shrink-0 rounded-xl bg-linear-to-b from-[#F8FAFC] to-[#F1F5F9] shadow-sm min-h-150">
+              <div className="bg-white/80 backdrop-blur-sm rounded-t-xl border-b border-[#E5E7EB] px-3 py-3">
+                <Skeleton variant="text" width={120} height={24} />
+              </div>
+              <div className="p-3 space-y-2">
+                {[1, 2, 3].map((j) => (
+                  <Skeleton key={j} variant="rounded" width="100%" height={120} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </DashboardShell>
     )
   }
@@ -403,6 +430,17 @@ export default function KanbanBoard({ boardId }) {
           onConfirm={handleDeleteBoard}
         />
       )}
+
+      <Snackbar
+        open={showDeleteToast}
+        autoHideDuration={2000}
+        onClose={() => setShowDeleteToast(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setShowDeleteToast(false)} severity='success' sx={{ width: '100%' }}>
+          Board deleted successfully!
+        </Alert>
+      </Snackbar>
 
       <button
         onClick={() => setShowDeleteDialog(true)}

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import { X, Trash2, Plus } from 'lucide-react'
-import { Select, MenuItem, FormControl } from '@mui/material'
+import { Select, MenuItem, FormControl, Snackbar, Alert } from '@mui/material'
 import { Input } from '@/components/ui/input'
 import { getInitials } from '@/lib/utils'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
@@ -22,6 +22,7 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
   const [selectedColor, setSelectedColor] = useState(DASHBOARD_DATA.labels.colors[0].value)
   const [loading, setLoading] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showDeleteToast, setShowDeleteToast] = useState(false)
 
   const handleSave = async () => {
     if (!title.trim()) return
@@ -47,10 +48,13 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
     setShowDeleteDialog(true)
   }
 
-  const confirmDelete = () => {
-    onDelete(task.id)
+  const confirmDelete = async () => {
+    await onDelete(task.id)
     setShowDeleteDialog(false)
-    onClose()
+    setShowDeleteToast(true)
+    setTimeout(() => {
+      onClose()
+    }, 2000)
   }
 
   const addLabel = () => {
@@ -295,6 +299,17 @@ export default function TaskDetailModal({ task, members, onClose, onSave, onDele
           onConfirm={confirmDelete}
         />
       )}
+
+      <Snackbar
+        open={showDeleteToast}
+        autoHideDuration={2000}
+        onClose={() => setShowDeleteToast(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setShowDeleteToast(false)} severity='success' sx={{ width: '100%' }}>
+          Task deleted successfully!
+        </Alert>
+      </Snackbar>
     </div>
   )
 }

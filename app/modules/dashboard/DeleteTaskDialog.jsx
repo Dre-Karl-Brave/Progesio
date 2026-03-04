@@ -11,7 +11,8 @@ export default function DeleteTaskDialog({ taskTitle, onClose, onConfirm }) {
     setLoading(true)
     try {
       await onConfirm()
-    } finally {
+      onClose()
+    } catch (error) {
       setLoading(false)
     }
   }
