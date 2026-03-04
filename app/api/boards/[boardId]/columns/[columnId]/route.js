@@ -65,13 +65,25 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Column not found' }, { status: 404 })
     }
 
-    await prisma.column.update({
-      where: { id: columnId },
-      data: {
-        deleted: true,
-        archivedAt: new Date(),
-      },
-    })
+    // Soft-delete the column and all its tasks
+    const now = new Date()
+
+    await prisma.$transaction([
+      prisma.column.update({
+        where: { id: columnId },
+        data: {
+          deleted: true,
+          archivedAt: now,
+        },
+      }),
+      prisma.task.updateMany({
+        where: { columnId: columnId },
+        data: {
+          deleted: true,
+          archivedAt: now,
+        },
+      }),
+    ])
 
     return NextResponse.json({ message: 'Column deleted' })
   } catch (error) {

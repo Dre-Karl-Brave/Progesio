@@ -62,6 +62,7 @@ model Column {
   position   Int
   deleted    Boolean   @default(false)
   archivedAt DateTime?
+  createdAt  DateTime  @default(now())
 
   boardId String
   board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)

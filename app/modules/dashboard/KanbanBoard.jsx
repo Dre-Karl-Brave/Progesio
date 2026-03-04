@@ -342,18 +342,19 @@ export default function KanbanBoard({ boardId }) {
   const handleViewSprint = async (sprint) => {
     setViewingSprint(sprint)
 
-    // Fetch tasks for this sprint (including archived ones for completed sprints)
+    // Fetch tasks and columns for this sprint (including archived/deleted ones)
     try {
       const res = await axios.get(`/api/boards/${boardId}/sprints/${sprint.id}/tasks`)
       const sprintTasks = res.data.tasks
+      const sprintColumns = res.data.columns || []
 
-      // Merge sprint tasks into board columns
+      // Build columns with their tasks
       updateBoard((prev) => {
-        const newColumns = prev.columns.map((col) => {
-          // Get tasks for this column from the sprint
-          const columnTasks = sprintTasks.filter((t) => t.columnId === col.id)
-          return { ...col, tasks: columnTasks }
-        })
+        const newColumns = sprintColumns.map((col) => ({
+          ...col,
+          tasks: sprintTasks.filter((task) => task.columnId === col.id)
+        }))
+
         return { ...prev, columns: newColumns }
       })
     } catch (error) {
@@ -370,17 +371,8 @@ export default function KanbanBoard({ boardId }) {
   // Filter board columns based on assignee filter and sprint
   let filteredBoard = board
 
-  // Apply sprint filter
-  if (viewingSprint) {
-    // Viewing a specific completed sprint
-    filteredBoard = {
-      ...filteredBoard,
-      columns: filteredBoard.columns.map((column) => ({
-        ...column,
-        tasks: (column.tasks || []).filter((task) => task.sprintId === viewingSprint.id)
-      }))
-    }
-  } else if (activeSprint) {
+  // Apply sprint filter (only if not viewing a specific sprint, as that already has the right data)
+  if (!viewingSprint && activeSprint) {
     // Active sprint exists - only show tasks from active sprint or backlog (no sprint)
     filteredBoard = {
       ...filteredBoard,
