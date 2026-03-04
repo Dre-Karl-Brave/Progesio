@@ -339,12 +339,32 @@ export default function KanbanBoard({ boardId }) {
 
   const isOwner = currentUserId && board.ownerId === currentUserId
 
-  const handleViewSprint = (sprint) => {
+  const handleViewSprint = async (sprint) => {
     setViewingSprint(sprint)
+
+    // Fetch tasks for this sprint (including archived ones for completed sprints)
+    try {
+      const res = await axios.get(`/api/boards/${boardId}/sprints/${sprint.id}/tasks`)
+      const sprintTasks = res.data.tasks
+
+      // Merge sprint tasks into board columns
+      updateBoard((prev) => {
+        const newColumns = prev.columns.map((col) => {
+          // Get tasks for this column from the sprint
+          const columnTasks = sprintTasks.filter((t) => t.columnId === col.id)
+          return { ...col, tasks: columnTasks }
+        })
+        return { ...prev, columns: newColumns }
+      })
+    } catch (error) {
+      console.error('Failed to fetch sprint tasks:', error)
+    }
   }
 
   const handleDismissSprintView = () => {
     setViewingSprint(null)
+    // Refresh board to show current state
+    fetchBoard()
   }
 
   // Filter board columns based on assignee filter and sprint
@@ -397,11 +417,15 @@ export default function KanbanBoard({ boardId }) {
           <div>
             <div>
               <h1 className='text-xl font-bold text-[#0F172A]'>{board.name}</h1>
-              {activeSprint && (
+              {viewingSprint ? (
+                <p className='text-xs text-[#64748B]'>
+                  Viewing: {viewingSprint.name}
+                </p>
+              ) : activeSprint ? (
                 <p className='text-xs text-[#94A3B8]'>
                   Sprint {sprintNumber} · {activeSprint.name}
                 </p>
-              )}
+              ) : null}
             </div>
             {board.description && <p className='text-sm text-[#475569]'>{board.description}</p>}
           </div>
