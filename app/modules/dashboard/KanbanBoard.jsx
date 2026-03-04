@@ -347,16 +347,28 @@ export default function KanbanBoard({ boardId }) {
     setViewingSprint(null)
   }
 
-  // Filter board columns based on assignee filter and viewing sprint
+  // Filter board columns based on assignee filter and sprint
   let filteredBoard = board
 
-  // Apply sprint filter first if viewing a sprint
+  // Apply sprint filter
   if (viewingSprint) {
+    // Viewing a specific completed sprint
     filteredBoard = {
       ...filteredBoard,
       columns: filteredBoard.columns.map((column) => ({
         ...column,
         tasks: (column.tasks || []).filter((task) => task.sprintId === viewingSprint.id)
+      }))
+    }
+  } else if (activeSprint) {
+    // Active sprint exists - only show tasks from active sprint or backlog (no sprint)
+    filteredBoard = {
+      ...filteredBoard,
+      columns: filteredBoard.columns.map((column) => ({
+        ...column,
+        tasks: (column.tasks || []).filter((task) =>
+          task.sprintId === activeSprint.id || task.sprintId === null
+        )
       }))
     }
   }
