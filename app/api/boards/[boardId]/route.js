@@ -45,6 +45,44 @@ export async function GET(request, { params }) {
   }
 }
 
+export async function PATCH(request, { params }) {
+  try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    const { boardId } = await params
+    const { name, description } = await request.json()
+
+    const ownerCheck = await isOwner(boardId, user.userId)
+    if (!ownerCheck) {
+      return NextResponse.json({ error: 'Board not found' }, { status: 404 })
+    }
+
+    if (!name?.trim()) {
+      return NextResponse.json({ error: 'Board name is required' }, { status: 400 })
+    }
+
+    const board = await prisma.board.update({
+      where: { id: boardId },
+      data: {
+        name: name.trim(),
+        description: description?.trim() || null,
+      },
+      include: {
+        columns: { where: { deleted: false }, select: { id: true } },
+        members: { where: { deleted: false }, select: { id: true } },
+      },
+    })
+
+    return NextResponse.json({ board })
+  } catch (error) {
+    console.error('Update board error:', error)
+    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
+  }
+}
+
 export async function DELETE(request, { params }) {
   try {
     const user = await getAuthenticatedUser()
