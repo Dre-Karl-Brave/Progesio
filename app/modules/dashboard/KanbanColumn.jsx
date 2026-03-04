@@ -6,7 +6,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Trash2, Plus } from 'lucide-react'
 import TaskCard from './TaskCard'
 import CreateTaskForm from './CreateTaskForm'
-import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
+import DeleteColumnDialog from './DeleteColumnDialog'
 
 export default function KanbanColumn({
   column,
@@ -18,6 +18,7 @@ export default function KanbanColumn({
   onUpdateTask
 }) {
   const [showForm, setShowForm] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const { setNodeRef, isOver } = useDroppable({
     id: `column-${column.id}`,
@@ -25,9 +26,12 @@ export default function KanbanColumn({
   })
 
   const handleDeleteColumn = () => {
-    if (window.confirm(DASHBOARD_DATA.kanban.deleteColumnConfirm)) {
-      onDeleteColumn(column.id)
-    }
+    setShowDeleteDialog(true)
+  }
+
+  const confirmDelete = () => {
+    onDeleteColumn(column.id)
+    setShowDeleteDialog(false)
   }
 
   const taskIds = column.tasks?.map((t) => t.id) || []
@@ -87,6 +91,15 @@ export default function KanbanColumn({
           </div>
         </div>
       </SortableContext>
+
+      {showDeleteDialog && (
+        <DeleteColumnDialog
+          columnName={column.name}
+          taskCount={column.tasks?.length || 0}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={confirmDelete}
+        />
+      )}
     </div>
   )
 }

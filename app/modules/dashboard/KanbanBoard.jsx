@@ -15,7 +15,7 @@ import {
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
-import { Skeleton, Snackbar, Alert } from '@mui/material'
+import { Skeleton } from '@mui/material'
 import { Input } from '@/components/ui/input'
 import DashboardShell from './DashboardShell'
 import KanbanColumn from './KanbanColumn'
@@ -38,7 +38,6 @@ export default function KanbanBoard({ boardId }) {
   const [selectedTask, setSelectedTask] = useState(null)
   const [currentUserId, setCurrentUserId] = useState(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [showDeleteToast, setShowDeleteToast] = useState(false)
 
   const boardRef = useRef(board)
   const assigneeFilter = searchParams.get('assignee')
@@ -253,10 +252,7 @@ export default function KanbanBoard({ boardId }) {
 
   const handleDeleteBoard = async () => {
     await axios.delete(`/api/boards/${boardId}`)
-    setShowDeleteToast(true)
-    setTimeout(() => {
-      router.push('/dashboard')
-    }, 2000)
+    router.push('/dashboard')
   }
 
   const handleAddMember = async (email) => {
@@ -430,17 +426,6 @@ export default function KanbanBoard({ boardId }) {
           onConfirm={handleDeleteBoard}
         />
       )}
-
-      <Snackbar
-        open={showDeleteToast}
-        autoHideDuration={2000}
-        onClose={() => setShowDeleteToast(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert onClose={() => setShowDeleteToast(false)} severity='success' sx={{ width: '100%' }}>
-          Board deleted successfully!
-        </Alert>
-      </Snackbar>
 
       <button
         onClick={() => setShowDeleteDialog(true)}
