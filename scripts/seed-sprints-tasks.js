@@ -2,7 +2,8 @@ const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
-// t
+// to check your preferred data, run npx prisma studio
+// once you checked, replace these 2 IDS then run 'scripts/seed-sprints-tasks.js'
 const USER_ID = 'cmm291wkq000gojanj36bhwin'
 const BOARD_ID = 'cmmgoy7ul000bi4zys8m8fhfg'
 
