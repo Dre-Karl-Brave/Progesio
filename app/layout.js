@@ -11,7 +11,7 @@ const inter = Inter({
 export const metadata = {
   title: {
     default: 'Progresio',
-    template: '%s · Progresio'
+    template: 'Progresio | %s'
   },
   description:
     'Progresio is an AI-driven workflow and productivity platform that organizes tasks using intensity-based boards to help users prioritize intelligently, prevent overload, and work sustainably.',
