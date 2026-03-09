@@ -25,6 +25,7 @@ import AddMemberModal from './AddMemberModal'
 import TaskDetailModal from './TaskDetailModal'
 import DeleteBoardDialog from './DeleteBoardDialog'
 import SprintSidebar from './SprintSidebar'
+import AIButton from './AIButton'
 import { DASHBOARD_DATA } from '@/app/constants/dashboard/constants'
 
 export default function KanbanBoard({ boardId }) {
@@ -303,6 +304,11 @@ export default function KanbanBoard({ boardId }) {
     })
   }
 
+  const handleAIButtonClick = () => {
+    // TODO: Implement AI functionality
+    console.log('AI Assistant clicked')
+  }
+
   if (loading) {
     return (
       <DashboardShell>
@@ -577,6 +583,8 @@ export default function KanbanBoard({ boardId }) {
         }}
         onViewSprint={handleViewSprint}
       />
+
+      <AIButton onClick={handleAIButtonClick} />
     </DashboardShell>
   )
 }
