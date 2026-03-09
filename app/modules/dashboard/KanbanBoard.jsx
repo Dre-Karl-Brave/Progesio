@@ -14,7 +14,7 @@ import {
   useSensors
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
-import { ArrowLeft, Plus, Trash2, CalendarDays, X } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, CalendarDays, X, MoreHorizontal } from 'lucide-react'
 import { Skeleton } from '@mui/material'
 import { Input } from '@/components/ui/input'
 import DashboardShell from './DashboardShell'
@@ -42,6 +42,7 @@ export default function KanbanBoard({ boardId }) {
   const [showSprintSidebar, setShowSprintSidebar] = useState(false)
   const [sprints, setSprints] = useState([])
   const [viewingSprint, setViewingSprint] = useState(null)
+  const [showBoardMenu, setShowBoardMenu] = useState(false)
 
   const boardRef = useRef(board)
   const assigneeFilter = searchParams.get('assignee')
@@ -418,15 +419,6 @@ export default function KanbanBoard({ boardId }) {
               </p>
             ) : null}
           </div>
-        </div>
-        <div className='flex items-center gap-3'>
-          <button
-            onClick={() => setShowSprintSidebar(true)}
-            className='flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-medium text-[#475569] transition-colors hover:bg-[#F8FAFC] cursor-pointer'
-          >
-            <CalendarDays size={16} />
-            Sprints
-          </button>
           {board.members && (
             <MembersPanel
               members={board.members}
@@ -435,6 +427,46 @@ export default function KanbanBoard({ boardId }) {
               onRemoveMember={handleRemoveMember}
             />
           )}
+        </div>
+        <div className='flex items-center gap-3'>
+          <div className='relative'>
+            <button
+              onClick={() => setShowBoardMenu(!showBoardMenu)}
+              className='flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm font-medium text-[#475569] transition-colors hover:bg-[#F8FAFC] cursor-pointer'
+            >
+              <MoreHorizontal size={16} />
+            </button>
+            {showBoardMenu && (
+              <>
+                <div
+                  className='fixed inset-0 z-10'
+                  onClick={() => setShowBoardMenu(false)}
+                />
+                <div className='absolute right-0 top-full mt-2 z-20 w-48 rounded-lg border border-[#E5E7EB] bg-white shadow-lg'>
+                  <button
+                    onClick={() => {
+                      setShowBoardMenu(false)
+                      setShowSprintSidebar(true)
+                    }}
+                    className='flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-[#475569] transition-colors hover:bg-[#F8FAFC] cursor-pointer'
+                  >
+                    <CalendarDays size={16} />
+                    Sprints
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowBoardMenu(false)
+                      setShowDeleteDialog(true)
+                    }}
+                    className='flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 rounded-lg cursor-pointer'
+                  >
+                    <Trash2 size={16} />
+                    Delete Board
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -545,14 +577,6 @@ export default function KanbanBoard({ boardId }) {
         }}
         onViewSprint={handleViewSprint}
       />
-
-      <button
-        onClick={() => setShowDeleteDialog(true)}
-        className='fixed bottom-6 right-6 flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-500 shadow-lg transition-all hover:bg-red-50 hover:shadow-xl cursor-pointer'
-      >
-        <Trash2 size={16} />
-        Delete Board
-      </button>
     </DashboardShell>
   )
 }
