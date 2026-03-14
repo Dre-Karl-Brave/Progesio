@@ -1,6 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { Dialog, DialogContent, IconButton, Typography, Box, Button } from '@mui/material'
 import { X, FileText, GitBranch, Clock } from 'lucide-react'
 
 const actions = [
@@ -26,119 +27,153 @@ const actions = [
 
 export default function TaskIntelligenceDialog({ open, onClose }) {
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          className='fixed inset-0 z-50 flex items-center justify-center'
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.18 }}
-          onClick={onClose}
-          style={{ background: 'rgba(0,0,0,0.3)' }}
-        >
-          <motion.div
-            onClick={(e) => e.stopPropagation()}
-            initial={{ opacity: 0, y: 16, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 340, damping: 26 }}
-            style={{
-              width: 580,
-              background: '#fff',
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth={false}
+      PaperProps={{
+        sx: {
+          width: 580,
+          borderRadius: '18px',
+          border: '1px solid #E2E8F0',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.13)',
+          overflow: 'hidden'
+        }
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ px: 3.5, pt: 3.5, pb: 2.5, borderBottom: '1px solid #F1F5F9' }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}>
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: '#64748B',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                mb: 0.75
+              }}
+            >
+              AI Assistant
+            </Typography>
+            <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#0F172A', mb: 0.5 }}>
+              Task-level intelligence
+            </Typography>
+            <Typography sx={{ fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
+              Let AI analyze and enhance the selected task with intelligent suggestions.
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={onClose}
+            size='small'
+            sx={{
+              width: 30,
+              height: 30,
               border: '1px solid #E2E8F0',
-              borderRadius: 18,
-              boxShadow: '0 20px 60px rgba(0,0,0,0.13)',
-              overflow: 'hidden'
+              background: '#F8FAFC',
+              color: '#374151',
+              flexShrink: 0,
+              '&:hover': {
+                background: '#0F172A',
+                borderColor: '#0F172A',
+                color: '#fff'
+              },
+              transition: 'all 0.15s ease'
             }}
           >
-            {/* Header */}
-            <div style={{ padding: '28px 28px 22px', borderBottom: '1px solid #F1F5F9' }}>
-              <div className='flex items-start justify-between gap-4'>
-                <div>
-                  <p className='text-[11px] font-semibold text-[#94A3B8] mb-2 tracking-widest uppercase'>
-                    AI Assistant
-                  </p>
-                  <h2 className='text-[18px] font-semibold text-[#0F172A]'>Task-level intelligence</h2>
-                  <p className='text-[13px] text-[#64748B] mt-1.5 leading-relaxed'>
-                    Let AI analyze and enhance the selected task with intelligent suggestions.
-                  </p>
-                </div>
-                <button
-                  onClick={onClose}
-                  className='flex items-center justify-center rounded-full cursor-pointer shrink-0'
-                  style={{
-                    width: 30,
-                    height: 30,
-                    background: '#F8FAFC',
-                    border: '1px solid #E2E8F0',
-                    color: '#64748B'
-                  }}
-                >
-                  <X size={13} strokeWidth={2} />
-                </button>
-              </div>
-            </div>
+            <X size={13} strokeWidth={2} />
+          </IconButton>
+        </Box>
+      </Box>
 
-            {/* Actions — horizontal */}
-            <div className='grid' style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, padding: '20px 20px' }}>
-              {actions.map((action) => (
-                <button
-                  key={action.id}
-                  className='flex flex-col items-center text-center rounded-xl cursor-pointer transition-all'
-                  style={{
-                    padding: '20px 16px',
-                    border: '1px solid transparent',
-                    background: '#F8FAFC'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#F1F5F9'
-                    e.currentTarget.style.border = '1px solid #E2E8F0'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#F8FAFC'
-                    e.currentTarget.style.border = '1px solid transparent'
-                  }}
-                  onClick={() => {
-                    console.log(action.id)
-                    onClose()
-                  }}
-                >
-                  <span className='text-[13px] font-semibold text-[#0F172A] mb-2 leading-snug'>{action.title}</span>
-                  <span className='text-[11.5px] text-[#64748B] leading-relaxed mb-5'>{action.description}</span>
-                  <div
-                    className='flex items-center justify-center rounded-lg mt-auto'
-                    style={{
-                      width: 40,
-                      height: 40,
-                      background: '#fff',
-                      border: '1px solid #E2E8F0',
-                      color: '#0F172A'
-                    }}
-                  >
-                    <action.Icon size={17} strokeWidth={1.8} />
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            {/* Footer */}
-            <div
-              className='flex items-center justify-between'
-              style={{ padding: '14px 24px', borderTop: '1px solid #F1F5F9' }}
+      {/* Actions */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5, p: 2.5 }}>
+        {actions.map((action) => (
+          <Box
+            key={action.id}
+            onClick={() => {
+              console.log(action.id)
+              onClose()
+            }}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              p: 2.5,
+              borderRadius: '12px',
+              background: '#F8FAFC',
+              border: '1px solid transparent',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              '&:hover': {
+                background: '#F1F5F9',
+                border: '1px solid #E2E8F0'
+              }
+            }}
+          >
+            <Typography sx={{ fontSize: 13, fontWeight: 600, color: '#0F172A', mb: 1, lineHeight: 1.3 }}>
+              {action.title}
+            </Typography>
+            <Typography sx={{ fontSize: 11.5, color: '#374151', lineHeight: 1.6, mb: 2.5 }}>
+              {action.description}
+            </Typography>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '10px',
+                background: '#fff',
+                border: '1px solid #E2E8F0',
+                color: '#0F172A',
+                mt: 'auto'
+              }}
             >
-              <p className='text-[11px] text-[#94A3B8]'>Powered by AI · Results may vary</p>
-              <button
-                onClick={onClose}
-                className='cursor-pointer text-[12px] font-medium text-[#475569] transition-colors hover:bg-[#F1F5F9]'
-                style={{ padding: '7px 16px', border: '1px solid #E2E8F0', borderRadius: 8 }}
-              >
-                Cancel
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+              <action.Icon size={17} strokeWidth={1.8} />
+            </Box>
+          </Box>
+        ))}
+      </Box>
+
+      {/* Footer */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 3,
+          py: 1.75,
+          borderTop: '1px solid #F1F5F9'
+        }}
+      >
+        <Typography sx={{ fontSize: 11, color: '#64748B' }}>Powered by AI · Results may vary</Typography>
+        <Button
+          onClick={onClose}
+          size='small'
+          sx={{
+            fontSize: 12,
+            fontWeight: 500,
+            color: '#0F172A',
+            border: '1px solid #E2E8F0',
+            borderRadius: '8px',
+            px: 2,
+            py: 0.75,
+            textTransform: 'none',
+            background: 'transparent',
+            '&:hover': {
+              background: '#F1F5F9',
+              borderColor: '#CBD5E1'
+            },
+            transition: 'all 0.15s ease'
+          }}
+        >
+          Cancel
+        </Button>
+      </Box>
+    </Dialog>
   )
 }
