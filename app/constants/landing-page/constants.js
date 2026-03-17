@@ -103,10 +103,10 @@ export const FEATURES_DATA = {
       className: 'border-b col-span-1 lg:col-span-2 border-[#E5E7EB]'
     },
     {
-      title: 'Works Anywhere',
-      description: 'Access your productivity dashboard from any device, anywhere in the world.',
+      title: '',
+      description: '',
       skeleton: 'SkeletonFour',
-      className: 'col-span-1 lg:col-span-3 border-b lg:border-none'
+      className: 'col-span-1 lg:col-span-6 lg:border-none'
     }
   ]
 }
