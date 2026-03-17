@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import axios from 'axios'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SquareCheckBig, LayoutDashboard, X } from 'lucide-react'
 import TaskIntelligenceDialog from './TaskIntelligenceDialog'
 import BoardIntelligenceDialog from './BoardntelligenceDialog'
+import { timeRangeToDueDate } from './taskIntelligence/timeRangeToDueDate'
 
 const options = [
   { id: 'task', label: 'Task-level intelligence', Icon: SquareCheckBig },
@@ -13,11 +15,22 @@ const options = [
 
 const BTN_SIZE = 44
 
-export default function AIButton() {
+export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
   const [isOpen, setIsOpen] = useState(false)
   const [hoveredId, setHoveredId] = useState(null)
   const [showTaskDialog, setShowTaskDialog] = useState(false)
   const [showBoardDialog, setShowBoardDialog] = useState(false)
+
+  const handleApplyEstimates = async (estimates) => {
+    await Promise.all(
+      estimates.map((estimate) =>
+        axios.patch(`/api/boards/${boardId}/tasks/${estimate.id}`, {
+          dueDate: timeRangeToDueDate(estimate.timeRange).toISOString()
+        })
+      )
+    )
+    onTasksUpdated?.()
+  }
 
   const handleClick = (id) => {
     if (id === 'task') setShowTaskDialog(true)
@@ -164,7 +177,7 @@ export default function AIButton() {
         </motion.button>
       </div>
 
-      <TaskIntelligenceDialog open={showTaskDialog} onClose={() => setShowTaskDialog(false)} />
+      <TaskIntelligenceDialog open={showTaskDialog} onClose={() => setShowTaskDialog(false)} onApply={handleApplyEstimates} tasks={tasks} boardId={boardId} />
       <BoardIntelligenceDialog open={showBoardDialog} onClose={() => setShowBoardDialog(false)} />
     </>
   )

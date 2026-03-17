@@ -584,7 +584,13 @@ export default function KanbanBoard({ boardId }) {
         onViewSprint={handleViewSprint}
       />
 
-      <AIButton onClick={handleAIButtonClick} />
+      <AIButton
+        boardId={boardId}
+        tasks={(board?.columns || []).flatMap((col) =>
+          (col.tasks || []).map((t) => ({ id: t.id, title: t.title, columnName: col.name, dueDate: t.dueDate ?? null }))
+        )}
+        onTasksUpdated={fetchBoard}
+      />
     </DashboardShell>
   )
 }
