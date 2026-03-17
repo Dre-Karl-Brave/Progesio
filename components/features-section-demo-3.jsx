@@ -181,79 +181,83 @@ export const SkeletonTwo = () => {
 }
 
 export const SkeletonFour = () => {
-  const devices = [
-    { label: 'Mobile', icon: '📱', delay: 0.1 },
-    { label: 'Laptop', icon: '💻', delay: 0.2 },
-    { label: 'Tablet', icon: '📟', delay: 0.3 },
-    { label: 'Desktop', icon: '🖥️', delay: 0.4 }
+  const messages = [
+    {
+      role: 'user',
+      text: 'I have a research paper due Friday. Help me break it down.',
+      delay: 0.1
+    },
+    {
+      role: 'ai',
+      text: "Sure! Here's a plan:",
+      delay: 0.4
+    },
+    {
+      role: 'ai',
+      text: null,
+      tasks: ['Pick topic & outline — Today', 'Research & notes — Tomorrow', 'First draft — Thursday', 'Proofread & submit — Friday'],
+      delay: 0.7
+    },
+    {
+      role: 'user',
+      text: 'Can you mark the first one as high priority?',
+      delay: 1.1
+    },
+    {
+      role: 'ai',
+      text: 'Done! "Pick topic & outline" is now set to High priority.',
+      delay: 1.4
+    }
   ]
 
-  const pulseRings = [0, 0.6, 1.2]
-
   return (
-    <div
-      className='min-h-80 relative overflow-hidden rounded-b-md'
-      style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1e3a8a 100%)' }}
-    >
-      {/* Dot grid background */}
-      <div
-        className='absolute inset-0 opacity-20'
-        style={{
-          backgroundImage: 'radial-gradient(circle, #60a5fa 1px, transparent 1px)',
-          backgroundSize: '24px 24px'
-        }}
-      />
+    <div className='min-h-80 flex flex-col gap-3 px-6 py-6'>
+      {/* Chat header */}
+      <div className='flex items-center gap-2 pb-2 border-b border-[#E5E7EB]'>
+        <div className='w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center'>
+          <svg className='w-4 h-4 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15M14.25 3.104c.251.023.501.05.75.082M19.8 15l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.607L5 14.5m14.8.5-1.477.36a9.065 9.065 0 01-4.573.08' />
+          </svg>
+        </div>
+        <span className='text-sm font-semibold text-[#0F172A]'>Progresio AI</span>
+        <span className='ml-auto flex items-center gap-1 text-xs text-green-600'>
+          <span className='w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse' />
+          Online
+        </span>
+      </div>
 
-      <div className='relative z-10 flex flex-col items-center justify-center gap-8 px-8 py-12'>
-        {/* Title */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className='text-center'
-        >
-          <p className='text-2xl md:text-3xl font-bold text-white tracking-tight'>Works Anywhere</p>
-          <p className='text-sm text-blue-300 mt-1.5'>Access your dashboard from any device, anywhere in the world.</p>
-        </motion.div>
-
-        {/* Central sync orb */}
-        <div className='relative flex items-center justify-center'>
-          {pulseRings.map((delay, i) => (
-            <motion.div
-              key={i}
-              className='absolute rounded-full border border-blue-400'
-              initial={{ width: 56, height: 56, opacity: 0.6 }}
-              animate={{ width: 160 + i * 50, height: 160 + i * 50, opacity: 0 }}
-              transition={{ duration: 2.5, delay, repeat: Infinity, ease: 'easeOut' }}
-            />
-          ))}
-          <div
-            className='w-16 h-16 rounded-full flex items-center justify-center z-10'
-            style={{ background: 'linear-gradient(135deg, #3b82f6, #60a5fa)', boxShadow: '0 0 48px rgba(59,130,246,0.7)' }}
+      {/* Messages */}
+      <div className='flex flex-col gap-2.5'>
+        {messages.map((msg, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: msg.delay }}
+            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <svg className='w-8 h-8 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' />
-            </svg>
-          </div>
-        </div>
-
-        {/* Device cards */}
-        <div className='flex gap-4 flex-wrap justify-center'>
-          {devices.map((device) => (
-            <motion.div
-              key={device.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: device.delay, duration: 0.4 }}
-              className='flex flex-col items-center gap-2 px-5 py-3 rounded-2xl border border-blue-500/30'
-              style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)' }}
-            >
-              <span className='text-2xl'>{device.icon}</span>
-              <span className='text-xs text-blue-200 font-medium'>{device.label}</span>
-              <span className='w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse' />
-            </motion.div>
-          ))}
-        </div>
+            {msg.tasks ? (
+              <div className='flex flex-col gap-1.5 max-w-xs'>
+                {msg.tasks.map((task, j) => (
+                  <div key={j} className='flex items-center gap-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg px-3 py-1.5'>
+                    <span className='w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0' />
+                    <span className='text-xs text-[#334155]'>{task}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                className={`px-3 py-2 rounded-2xl text-xs max-w-xs leading-relaxed ${
+                  msg.role === 'user'
+                    ? 'bg-blue-500 text-white rounded-br-sm'
+                    : 'bg-[#F1F5F9] text-[#334155] rounded-bl-sm'
+                }`}
+              >
+                {msg.text}
+              </div>
+            )}
+          </motion.div>
+        ))}
       </div>
     </div>
   )

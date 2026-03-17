@@ -103,8 +103,8 @@ export const FEATURES_DATA = {
       className: 'border-b col-span-1 lg:col-span-2 border-[#E5E7EB]'
     },
     {
-      title: '',
-      description: '',
+      title: 'AI Task Assistant',
+      description: 'Ask your AI assistant to break down tasks, set priorities, and plan your week — all in plain language.',
       skeleton: 'SkeletonFour',
       className: 'col-span-1 lg:col-span-6 lg:border-none'
     }
