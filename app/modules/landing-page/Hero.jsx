@@ -73,9 +73,11 @@ export default function HeroSection() {
               {HERO_DATA.buttons.primary}
             </button>
           </Link>
-          <button className='w-60 transform cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-6 py-2 font-medium text-[#0F172A] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#F8FAFC]'>
-            {HERO_DATA.buttons.secondary}
-          </button>
+          <a href='mailto:drevictoria829@gmail.com'>
+            <button className='w-60 transform cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-6 py-2 font-medium text-[#0F172A] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#F8FAFC]'>
+              {HERO_DATA.buttons.secondary}
+            </button>
+          </a>
         </motion.div>
         <motion.div
           initial={{

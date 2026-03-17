@@ -56,8 +56,9 @@ export default function FAQ() {
               <Button
                 variant='outline'
                 className='border border-[#0F172A]/50 text-[#0F172A] hover:bg-[#0F172A] hover:text-white px-8 py-6 font-medium rounded-lg cursor-pointer transition-all shrink-0'
+                asChild
               >
-                Contact Support
+                <a href='mailto:drevictoria829@gmail.com'>Contact Support</a>
               </Button>
             </div>
           </motion.div>
