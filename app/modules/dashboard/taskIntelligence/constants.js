@@ -21,12 +21,31 @@ export const ACTIONS = [
   }
 ]
 
-export const LOADING_MESSAGES = [
+export const ESTIMATE_LOADING_MESSAGES = [
   'Analyzing task complexity...',
   'Reviewing scope and requirements...',
   'Calculating effort estimate...',
   'Assessing dependencies...',
   'Finalizing results...'
+]
+
+// Keep old name as alias for backward compat
+export const LOADING_MESSAGES = ESTIMATE_LOADING_MESSAGES
+
+export const SCAN_LOADING_MESSAGES = [
+  'Scanning board tasks...',
+  'Identifying complex tasks...',
+  'Evaluating scope and breadth...',
+  'Checking for breakdown candidates...',
+  'Finalizing analysis...'
+]
+
+export const GENERATE_LOADING_MESSAGES = [
+  'Reading task requirements...',
+  'Drafting subtasks...',
+  'Organizing work into steps...',
+  'Reviewing coverage...',
+  'Finalizing subtasks...'
 ]
 
 export const COMPLEXITY_COLORS = {
@@ -44,7 +63,7 @@ export const CONFIDENCE_COLORS = {
 export const STEP_HEADER = {
   feature: {
     title: 'Task-level intelligence',
-    subtitle: 'Let AI analyze and enhance the selected task with intelligent suggestions.'
+    subtitle: 'Let AI analyze and enhance your tasks with intelligent suggestions.'
   },
   tasks: {
     title: 'Select tasks to estimate',
@@ -56,6 +75,22 @@ export const STEP_HEADER = {
   },
   results: {
     title: 'Effort estimates',
+    subtitle: null // dynamic
+  },
+  'scan-loading': {
+    title: 'Scanning board...',
+    subtitle: 'AI is identifying tasks that would benefit from a breakdown.'
+  },
+  'select-breakdown': {
+    title: 'Select tasks to break down',
+    subtitle: 'AI found tasks that are too broad. Pick which ones to split into subtasks.'
+  },
+  'generate-loading': {
+    title: 'Generating subtasks...',
+    subtitle: 'AI is breaking down your tasks into actionable steps.'
+  },
+  'subtask-results': {
+    title: 'Generated subtasks',
     subtitle: null // dynamic
   }
 }
