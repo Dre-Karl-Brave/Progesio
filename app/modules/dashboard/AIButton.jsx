@@ -5,7 +5,7 @@ import axios from 'axios'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SquareCheckBig, LayoutDashboard, X } from 'lucide-react'
 import TaskIntelligenceDialog from './TaskIntelligenceDialog'
-import BoardIntelligenceDialog from './BoardntelligenceDialog'
+import BoardIntelligenceDialog from './BoardIntelligenceDialog'
 import { timeRangeToDueDate } from './taskIntelligence/timeRangeToDueDate'
 
 const options = [
