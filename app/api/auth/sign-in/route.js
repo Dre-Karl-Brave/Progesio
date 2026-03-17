@@ -18,13 +18,13 @@ export async function POST(request) {
     })
 
     if (!user) {
-      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
+      return NextResponse.json({ error: 'No account found with that email' }, { status: 401 })
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password)
 
     if (!passwordMatch) {
-      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
+      return NextResponse.json({ error: 'Incorrect password' }, { status: 401 })
     }
 
     const token = signToken({ userId: user.id, email: user.email })
