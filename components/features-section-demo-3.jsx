@@ -133,57 +133,49 @@ export const SkeletonOne = () => {
 }
 
 export const SkeletonTwo = () => {
-  const bars = [
-    { label: 'Mon', value: 65 },
-    { label: 'Tue', value: 85 },
-    { label: 'Wed', value: 45 },
-    { label: 'Thu', value: 90 },
-    { label: 'Fri', value: 70 },
-    { label: 'Sat', value: 30 },
-    { label: 'Sun', value: 55 }
-  ]
-
-  const stats = [
-    { label: 'Completed', value: 24, color: 'text-green-500', bg: 'bg-green-50' },
-    { label: 'In Progress', value: 8, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Overdue', value: 3, color: 'text-red-500', bg: 'bg-red-50' }
+  const insights = [
+    {
+      icon: '✦',
+      text: 'You complete 3× more tasks before noon — try front-loading your day.',
+      delay: 0.1
+    },
+    {
+      icon: '✦',
+      text: 'Task completion dropped 40% near deadlines. Breaking them earlier could help.',
+      delay: 0.3
+    },
+    {
+      icon: '✦',
+      text: 'Your focus sessions average 22 min. Consider extending to 45 min blocks.',
+      delay: 0.5
+    }
   ]
 
   return (
-    <div className='relative flex flex-col items-start p-6 gap-4 h-full overflow-hidden'>
-      <div className='flex gap-3 w-full'>
-        {stats.map((stat, i) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.12 }}
-            className={`flex-1 ${stat.bg} rounded-xl border border-[#E5E7EB] p-3 shadow-sm`}
-          >
-            <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
-            <p className='text-xs text-gray-500 mt-0.5'>{stat.label}</p>
-          </motion.div>
-        ))}
-      </div>
-      <div className='w-full bg-white rounded-xl border border-[#E5E7EB] p-4 shadow-sm'>
-        <p className='text-xs font-medium text-gray-500 mb-3'>Weekly Progress</p>
-        <div className='flex items-end gap-2 h-20'>
-          {bars.map((bar, i) => (
-            <div key={bar.label} className='flex-1 flex flex-col items-center gap-1 h-full'>
-              <div className='flex-1 w-full flex items-end'>
-                <motion.div
-                  className='w-full bg-blue-500 rounded-t-sm'
-                  style={{ height: `${bar.value}%`, originY: 1 }}
-                  initial={{ scaleY: 0 }}
-                  animate={{ scaleY: 1 }}
-                  transition={{ duration: 0.5, delay: 0.3 + i * 0.07, ease: 'easeOut' }}
-                />
-              </div>
-              <span className='text-xs text-gray-400'>{bar.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className='relative flex flex-col items-start p-6 gap-3 h-full overflow-hidden'>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        className='flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full'
+      >
+        <span className='w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse' />
+        AI analyzing your data…
+      </motion.div>
+
+      {insights.map((insight, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: insight.delay }}
+          className='w-full bg-white rounded-xl border border-[#E5E7EB] p-3 shadow-sm flex gap-2.5 items-start'
+        >
+          <span className='text-blue-400 text-sm mt-0.5 flex-shrink-0'>{insight.icon}</span>
+          <p className='text-xs text-[#334155] leading-relaxed'>{insight.text}</p>
+        </motion.div>
+      ))}
+
       <div className='absolute left-0 z-100 inset-y-0 w-20 bg-linear-to-r from-[#FFFFFF] to-transparent h-full pointer-events-none' />
       <div className='absolute right-0 z-100 inset-y-0 w-20 bg-linear-to-l from-[#FFFFFF] to-transparent h-full pointer-events-none' />
     </div>
