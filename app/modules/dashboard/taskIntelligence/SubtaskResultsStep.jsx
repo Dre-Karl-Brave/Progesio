@@ -1,7 +1,7 @@
-import { Box, Typography } from '@mui/material'
-import { GitBranch } from 'lucide-react'
+import { Box, Typography, FormControlLabel, Checkbox } from '@mui/material'
+import { GitBranch, Trash2 } from 'lucide-react'
 
-export default function SubtaskResultsStep({ subtaskResults, tasks }) {
+export default function SubtaskResultsStep({ subtaskResults, tasks, deleteMainTasks, onDeleteMainTasksChange }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {subtaskResults.map((result) => {
@@ -34,6 +34,33 @@ export default function SubtaskResultsStep({ subtaskResults, tasks }) {
           </Box>
         )
       })}
+
+      {/* Delete original tasks option */}
+      <Box sx={{ mt: 1, pt: 1.5, borderTop: '1px solid #F1F5F9' }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={deleteMainTasks}
+              onChange={(e) => onDeleteMainTasksChange(e.target.checked)}
+              size='small'
+              sx={{
+                color: '#CBD5E1',
+                '&.Mui-checked': { color: '#EF4444' },
+                p: 0.5
+              }}
+            />
+          }
+          label={
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              <Trash2 size={13} color={deleteMainTasks ? '#EF4444' : '#94A3B8'} />
+              <Typography sx={{ fontSize: 12.5, color: deleteMainTasks ? '#EF4444' : '#64748B', fontWeight: deleteMainTasks ? 500 : 400 }}>
+                Delete original task{subtaskResults.length !== 1 ? 's' : ''} after breakdown
+              </Typography>
+            </Box>
+          }
+          sx={{ m: 0, gap: 0.5 }}
+        />
+      </Box>
     </Box>
   )
 }

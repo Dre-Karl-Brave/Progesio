@@ -37,7 +37,7 @@ export default function AIButton({ tasks = [], boardId, columns = [], members = 
     toast.success(`Due dates updated for ${estimates.length} task${estimates.length !== 1 ? 's' : ''}.`)
   }
 
-  const handleApplySubtasks = async (subtaskResults, allTasks) => {
+  const handleApplySubtasks = async (subtaskResults, allTasks, deleteMainTasks = false) => {
     const created = subtaskResults.flatMap((r) => r.items)
     await Promise.all(
       subtaskResults.flatMap((result) => {
@@ -53,8 +53,16 @@ export default function AIButton({ tasks = [], boardId, columns = [], members = 
         )
       })
     )
+    if (deleteMainTasks) {
+      await Promise.all(
+        subtaskResults.map((result) =>
+          axios.delete(`/api/boards/${boardId}/tasks/${result.parentId}`)
+        )
+      )
+    }
     onTasksUpdated?.()
-    toast.success(`${created.length} subtask${created.length !== 1 ? 's' : ''} created across ${subtaskResults.length} task${subtaskResults.length !== 1 ? 's' : ''}.`)
+    const deletedMsg = deleteMainTasks ? `, ${subtaskResults.length} original task${subtaskResults.length !== 1 ? 's' : ''} deleted` : ''
+    toast.success(`${created.length} subtask${created.length !== 1 ? 's' : ''} created across ${subtaskResults.length} task${subtaskResults.length !== 1 ? 's' : ''}${deletedMsg}.`)
   }
 
   const handleApplyOrganize = async (suggestions) => {

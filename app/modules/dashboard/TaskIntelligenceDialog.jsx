@@ -34,6 +34,7 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
   const [bigTasks, setBigTasks] = useState([])
   const [checkedIds, setCheckedIds] = useState([])
   const [subtaskResults, setSubtaskResults] = useState([])
+  const [deleteMainTasks, setDeleteMainTasks] = useState(false)
 
   // Organize state
   const [organizeSelectedTasks, setOrganizeSelectedTasks] = useState([])
@@ -56,6 +57,7 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
     setBigTasks([])
     setCheckedIds([])
     setSubtaskResults([])
+    setDeleteMainTasks(false)
     setOrganizeSelectedTasks([])
     setOrganizeResults([])
     setProgress(0)
@@ -123,7 +125,7 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
       setTimeout(() => {
         const found = res.data.bigTasks || []
         setBigTasks(found)
-        setCheckedIds(found.map((t) => t.id))
+        setCheckedIds([])
         setStep('select-breakdown')
       }, 400)
     } catch (err) {
@@ -189,8 +191,10 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
   const backStep = BACK_MAP[step]
   const loadingTaskCount =
     step === 'loading' ? selectedTasks.length
+    : step === 'scan-loading' ? tasks.length
+    : step === 'generate-loading' ? checkedIds.length
     : step === 'organize-loading' ? organizeSelectedTasks.length
-    : checkedIds.length
+    : null
 
   return (
     <Dialog
@@ -248,7 +252,7 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
         {isLoading && <LoadingStep progress={progress} loadingMsg={loadingMsg} taskCount={loadingTaskCount} />}
         {step === 'results' && <EstimateResultsStep results={estimateResults} selectedTasks={selectedTasks} />}
         {step === 'select-breakdown' && <SubtaskBreakdownStep bigTasks={bigTasks} tasks={tasks} checkedIds={checkedIds} onToggle={handleToggleCheck} error={error} />}
-        {step === 'subtask-results' && <SubtaskResultsStep subtaskResults={subtaskResults} tasks={tasks} />}
+        {step === 'subtask-results' && <SubtaskResultsStep subtaskResults={subtaskResults} tasks={tasks} deleteMainTasks={deleteMainTasks} onDeleteMainTasksChange={setDeleteMainTasks} />}
         {step === 'organize-tasks' && <TaskSelectionStep tasks={tasks} selectedTasks={organizeSelectedTasks} onChangeSelectedTasks={setOrganizeSelectedTasks} error={error} />}
         {step === 'organize-results' && <OrganizeResultsStep suggestions={organizeResults} selectedTasks={organizeSelectedTasks} />}
       </Box>
@@ -283,7 +287,7 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
             </Button>
           )}
           {step === 'subtask-results' && (
-            <Button onClick={() => { onApplySubtasks?.(subtaskResults, tasks); handleClose() }} size='small' sx={{ fontSize: 12, fontWeight: 500, color: '#fff', border: '1px solid #0F172A', borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: '#0F172A', '&:hover': { background: '#1E293B' }, transition: 'all 0.15s ease' }}>
+            <Button onClick={() => { onApplySubtasks?.(subtaskResults, tasks, deleteMainTasks); handleClose() }} size='small' sx={{ fontSize: 12, fontWeight: 500, color: '#fff', border: '1px solid #0F172A', borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: '#0F172A', '&:hover': { background: '#1E293B' }, transition: 'all 0.15s ease' }}>
               Apply
             </Button>
           )}

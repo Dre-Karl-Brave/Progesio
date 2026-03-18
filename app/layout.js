@@ -46,7 +46,10 @@ export const metadata = {
     index: true,
     follow: true
   },
-  category: 'productivity'
+  category: 'productivity',
+  icons: {
+    icon: '/favicon.svg'
+  }
 }
 
 export default function RootLayout({ children }) {
