@@ -208,7 +208,7 @@ export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
       </div>
 
       <TaskIntelligenceDialog open={showTaskDialog} onClose={() => setShowTaskDialog(false)} onApply={handleApplyEstimates} onApplySubtasks={handleApplySubtasks} onApplyOrganize={handleApplyOrganize} tasks={tasks} boardId={boardId} />
-      <BoardIntelligenceDialog open={showBoardDialog} onClose={() => setShowBoardDialog(false)} />
+      <BoardIntelligenceDialog open={showBoardDialog} onClose={() => setShowBoardDialog(false)} boardId={boardId} />
     </>
   )
 }

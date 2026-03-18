@@ -19,7 +19,9 @@ export default function LoadingStep({ progress, loadingMsg, taskCount }) {
         />
       </Box>
       <Typography sx={{ fontSize: 11, color: '#94A3B8', mt: 2 }}>
-        Analyzing {taskCount} task{taskCount !== 1 ? 's' : ''}...
+        {taskCount != null
+          ? `Analyzing ${taskCount} task${taskCount !== 1 ? 's' : ''}...`
+          : 'Analyzing your board...'}
       </Typography>
     </Box>
   )
