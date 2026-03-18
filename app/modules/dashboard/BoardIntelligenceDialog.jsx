@@ -2,12 +2,16 @@
 
 import { useState, useRef } from 'react'
 import { Dialog, IconButton, Typography, Box, Button } from '@mui/material'
-import { X, BarChart2, AlertTriangle, Users } from 'lucide-react'
+import { X, BarChart2, AlertTriangle, Users, Download } from 'lucide-react'
 import axios from 'axios'
-import { Download } from 'lucide-react'
 import LoadingStep from './taskIntelligence/LoadingStep'
 import BottleneckResultsStep from './boardIntelligence/BottleneckResultsStep'
+import SprintSelectStep from './boardIntelligence/SprintSelectStep'
+import InsightsResultsStep from './boardIntelligence/InsightsResultsStep'
 import { downloadBottleneckReport } from './boardIntelligence/downloadBottleneckReport'
+import { downloadInsightsReport } from './boardIntelligence/downloadInsightsReport'
+
+// ── Constants ──────────────────────────────────────────
 
 const ACTIONS = [
   {
@@ -20,7 +24,7 @@ const ACTIONS = [
     id: 'insights',
     Icon: BarChart2,
     title: 'Sprint insights',
-    description: 'Get a breakdown of sprint health, trends, and predicted delivery timelines.'
+    description: 'Analyze a completed sprint — charts, priority breakdown, and AI-generated narrative.'
   },
   {
     id: 'workload',
@@ -39,36 +43,53 @@ const BOTTLENECK_LOADING_MESSAGES = [
   'Compiling bottleneck report...'
 ]
 
+const INSIGHTS_LOADING_MESSAGES = [
+  'Loading sprint data...',
+  'Analyzing task completion rates...',
+  'Calculating priority distribution...',
+  'Reviewing sprint timeline...',
+  'Identifying patterns and trends...',
+  'Generating sprint insights...'
+]
+
+const LOADING_STEPS = ['scan-loading', 'insights-loading']
+
 const STEP_HEADER = {
-  feature: {
-    title: 'Board-level intelligence',
-    subtitle: "Get a bird's-eye view of your board with AI-driven analysis and team insights."
-  },
-  'scan-loading': {
-    title: 'Detecting Bottlenecks',
-    subtitle: 'AI is scanning your board for risks, delays, and neglected tasks...'
-  },
-  'bottleneck-results': {
-    title: 'Bottleneck Report',
-    subtitle: null
-  }
+  feature:           { title: 'Board-level intelligence',  subtitle: "Get a bird's-eye view of your board with AI-driven analysis and team insights." },
+  'scan-loading':    { title: 'Detecting Bottlenecks',     subtitle: 'AI is scanning your board for risks, delays, and neglected tasks...' },
+  'bottleneck-results': { title: 'Bottleneck Report',      subtitle: null },
+  'sprint-select':   { title: 'Sprint Insights',           subtitle: 'Select a completed sprint to analyze.' },
+  'insights-loading':{ title: 'Analyzing Sprint',          subtitle: 'AI is reviewing your sprint data and generating insights...' },
+  'insights-results':{ title: 'Sprint Insights',           subtitle: null }
 }
 
-const LOADING_STEPS = ['scan-loading']
+// ── Component ──────────────────────────────────────────
 
 export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
-  const [selected, setSelected] = useState(null)
-  const [step, setStep] = useState('feature')
-  const [progress, setProgress] = useState(0)
-  const [loadingMsg, setLoadingMsg] = useState('')
-  const [summary, setSummary] = useState('')
-  const [bottlenecks, setBottlenecks] = useState([])
-  const [error, setError] = useState('')
+  const [selected, setSelected]           = useState(null)
+  const [step, setStep]                   = useState('feature')
+  const [progress, setProgress]           = useState(0)
+  const [loadingMsg, setLoadingMsg]       = useState('')
+  const [error, setError]                 = useState('')
+
+  // Bottleneck state
+  const [summary, setSummary]             = useState('')
+  const [bottlenecks, setBottlenecks]     = useState([])
+
+  // Sprint insights state
+  const [sprints, setSprints]             = useState([])
+  const [sprintsLoading, setSprintsLoading] = useState(false)
+  const [selectedSprint, setSelectedSprint] = useState(null)
+  const [insightsSprint, setInsightsSprint] = useState(null)
+  const [insightsStats, setInsightsStats]   = useState(null)
+  const [insightsSummary, setInsightsSummary] = useState(null)
 
   const progressInterval = useRef(null)
-  const msgInterval = useRef(null)
+  const msgInterval      = useRef(null)
 
   const isLoading = LOADING_STEPS.includes(step)
+
+  // ── Progress helpers ───────────────────────────────
 
   const startProgress = (messages) => {
     setProgress(0)
@@ -93,8 +114,24 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
     setProgress(100)
   }
 
-  const handleRun = () => {
-    if (selected === 'bottlenecks') handleBottleneckScan()
+  // ── Handlers ──────────────────────────────────────
+
+  const handleRun = async () => {
+    if (selected === 'bottlenecks') {
+      handleBottleneckScan()
+    } else if (selected === 'insights') {
+      setSprintsLoading(true)
+      setStep('sprint-select')
+      try {
+        const res = await axios.get(`/api/boards/${boardId}/sprints`)
+        const completed = (res.data.sprints || []).filter((s) => s.status === 'COMPLETED')
+        setSprints(completed)
+      } catch {
+        setError('Failed to load sprints.')
+      } finally {
+        setSprintsLoading(false)
+      }
+    }
   }
 
   const handleBottleneckScan = async () => {
@@ -117,6 +154,30 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
     }
   }
 
+  const handleInsights = async () => {
+    if (!selectedSprint) return
+    setStep('insights-loading')
+    setError('')
+    startProgress(INSIGHTS_LOADING_MESSAGES)
+
+    try {
+      const res = await axios.post(`/api/boards/${boardId}/ai/insights`, {
+        sprintId: selectedSprint.id
+      })
+      finishProgress()
+      setTimeout(() => {
+        setInsightsSprint(res.data.sprint)
+        setInsightsStats(res.data.stats)
+        setInsightsSummary(res.data.summary)
+        setStep('insights-results')
+      }, 400)
+    } catch (err) {
+      finishProgress()
+      setError(err.response?.data?.error || 'Something went wrong')
+      setStep('sprint-select')
+    }
+  }
+
   const handleClose = () => {
     clearInterval(progressInterval.current)
     clearInterval(msgInterval.current)
@@ -126,12 +187,21 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
     setLoadingMsg('')
     setSummary('')
     setBottlenecks([])
+    setSprints([])
+    setSelectedSprint(null)
+    setInsightsSprint(null)
+    setInsightsStats(null)
+    setInsightsSummary(null)
     setError('')
     onClose()
   }
 
-  const header = STEP_HEADER[step] || STEP_HEADER.feature
-  const showBack = false
+  // ── Derived ────────────────────────────────────────
+
+  const header      = STEP_HEADER[step] || STEP_HEADER.feature
+  const dialogWidth = ['bottleneck-results', 'insights-results'].includes(step) ? 640 : 580
+
+  // ── Render ─────────────────────────────────────────
 
   return (
     <Dialog
@@ -141,7 +211,7 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
       slotProps={{
         paper: {
           sx: {
-            width: step === 'bottleneck-results' ? 600 : 580,
+            width: dialogWidth,
             borderRadius: '18px',
             border: '1px solid #E2E8F0',
             boxShadow: '0 20px 60px rgba(0,0,0,0.13)',
@@ -166,14 +236,16 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
                 {header.subtitle}
               </Typography>
             )}
-            {step === 'bottleneck-results' && bottlenecks.length > 0 && (
+            {step === 'bottleneck-results' && (
               <Typography sx={{ fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
-                {bottlenecks.length} bottleneck{bottlenecks.length !== 1 ? 's' : ''} detected across your board.
+                {bottlenecks.length > 0
+                  ? `${bottlenecks.length} bottleneck${bottlenecks.length !== 1 ? 's' : ''} detected.`
+                  : 'Your board looks clean — no bottlenecks detected.'}
               </Typography>
             )}
-            {step === 'bottleneck-results' && bottlenecks.length === 0 && (
+            {step === 'insights-results' && insightsSprint && (
               <Typography sx={{ fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
-                Your board looks clean — no bottlenecks detected.
+                {insightsSprint.name}
               </Typography>
             )}
           </Box>
@@ -195,9 +267,8 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
       </Box>
 
       {/* Body */}
-      <Box sx={{ p: 2.5, maxHeight: 460, overflowY: 'auto' }}>
-        {/* Error */}
-        {error && step === 'feature' && (
+      <Box sx={{ p: 2.5, maxHeight: 520, overflowY: 'auto' }}>
+        {error && (step === 'feature' || step === 'sprint-select') && (
           <Box sx={{ mb: 2, p: 1.5, borderRadius: '8px', background: '#FEF2F2', border: '1px solid #FECACA' }}>
             <Typography sx={{ fontSize: 12, color: '#DC2626' }}>{error}</Typography>
           </Box>
@@ -207,20 +278,16 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
         {step === 'feature' && (
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5 }}>
             {ACTIONS.map((action) => {
-              const isSelected = selected === action.id
-              const isDisabled = action.id !== 'bottlenecks'
+              const isSelected  = selected === action.id
+              const isDisabled  = action.id === 'workload'
               return (
                 <Box
                   key={action.id}
                   onClick={() => !isDisabled && setSelected(action.id)}
                   sx={{
                     position: 'relative',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    p: 2.5,
-                    borderRadius: '12px',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                    p: 2.5, borderRadius: '12px',
                     background: isSelected ? '#F0F4FF' : '#F8FAFC',
                     border: isSelected ? '1.5px solid #0F172A' : '1.5px solid transparent',
                     cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -232,41 +299,45 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
                     }
                   }}
                 >
-                  {/* Radio indicator */}
-                  <Box
-                    sx={{
-                      position: 'absolute', top: 8, right: 8, width: 12, height: 12,
-                      borderRadius: '50%', border: isSelected ? '2px solid #0F172A' : '2px dashed #CBD5E1',
-                      background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
+                  <Box sx={{
+                    position: 'absolute', top: 8, right: 8, width: 12, height: 12,
+                    borderRadius: '50%', border: isSelected ? '2px solid #0F172A' : '2px dashed #CBD5E1',
+                    background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all 0.15s ease'
+                  }}>
                     {isSelected && <Box sx={{ width: 5, height: 5, borderRadius: '50%', background: '#0F172A' }} />}
                   </Box>
-
                   <Typography sx={{ fontSize: 13, fontWeight: 600, color: '#0F172A', mb: 1, lineHeight: 1.3 }}>
                     {action.title}
                   </Typography>
-                  <Typography sx={{ fontSize: 11.5, color: '#374151', lineHeight: 1.6, mb: 2.5 }}>
+                  <Typography sx={{ fontSize: 11.5, color: '#374151', lineHeight: 1.6, mb: isDisabled ? 1 : 2.5 }}>
                     {action.description}
                   </Typography>
                   {isDisabled && (
-                    <Box sx={{ fontSize: 10, color: '#94A3B8', mb: 1, fontStyle: 'italic' }}>Coming soon</Box>
+                    <Box sx={{ fontSize: 10, color: '#94A3B8', mb: 1.5, fontStyle: 'italic' }}>Coming soon</Box>
                   )}
-                  <Box
-                    sx={{
-                      width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      borderRadius: '10px', background: isSelected ? '#0F172A' : '#fff',
-                      border: '1px solid #E2E8F0', color: isSelected ? '#fff' : '#0F172A',
-                      mt: 'auto', transition: 'all 0.15s ease'
-                    }}
-                  >
+                  <Box sx={{
+                    width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    borderRadius: '10px', background: isSelected ? '#0F172A' : '#fff',
+                    border: '1px solid #E2E8F0', color: isSelected ? '#fff' : '#0F172A',
+                    mt: 'auto', transition: 'all 0.15s ease'
+                  }}>
                     <action.Icon size={17} strokeWidth={1.8} />
                   </Box>
                 </Box>
               )
             })}
           </Box>
+        )}
+
+        {/* Sprint selection */}
+        {step === 'sprint-select' && (
+          <SprintSelectStep
+            sprints={sprints}
+            selected={selectedSprint}
+            onSelect={setSelectedSprint}
+            loading={sprintsLoading}
+          />
         )}
 
         {/* Loading */}
@@ -278,12 +349,37 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
         {step === 'bottleneck-results' && (
           <BottleneckResultsStep summary={summary} bottlenecks={bottlenecks} />
         )}
+
+        {/* Sprint insights results */}
+        {step === 'insights-results' && insightsSprint && insightsStats && insightsSummary && (
+          <InsightsResultsStep
+            sprint={insightsSprint}
+            stats={insightsStats}
+            summary={insightsSummary}
+          />
+        )}
       </Box>
 
       {/* Footer */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, py: 1.75, borderTop: '1px solid #F1F5F9' }}>
         <Typography sx={{ fontSize: 11, color: '#64748B' }}>Powered by AI · Results may vary</Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
+          {/* Back button for sprint-select */}
+          {step === 'sprint-select' && (
+            <Button
+              onClick={() => { setSelectedSprint(null); setStep('feature') }}
+              size='small'
+              sx={{
+                fontSize: 12, fontWeight: 500, color: '#0F172A', border: '1px solid #E2E8F0',
+                borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: 'transparent',
+                '&:hover': { background: '#F1F5F9', borderColor: '#CBD5E1' }, transition: 'all 0.15s ease'
+              }}
+            >
+              Back
+            </Button>
+          )}
+
+          {/* Cancel / Close */}
           <Button
             onClick={handleClose}
             disabled={isLoading}
@@ -296,8 +392,10 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
               transition: 'all 0.15s ease'
             }}
           >
-            {step === 'bottleneck-results' ? 'Close' : 'Cancel'}
+            {['bottleneck-results', 'insights-results'].includes(step) ? 'Close' : 'Cancel'}
           </Button>
+
+          {/* Run (feature selection) */}
           {step === 'feature' && (
             <Button
               onClick={handleRun}
@@ -314,9 +412,46 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
               Run
             </Button>
           )}
+
+          {/* Analyze (sprint select) */}
+          {step === 'sprint-select' && (
+            <Button
+              onClick={handleInsights}
+              disabled={!selectedSprint || sprintsLoading}
+              size='small'
+              sx={{
+                fontSize: 12, fontWeight: 500, color: '#fff', border: '1px solid #0F172A',
+                borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: '#0F172A',
+                '&:hover': { background: '#1E293B', borderColor: '#1E293B' },
+                '&:disabled': { background: '#E2E8F0', borderColor: '#E2E8F0', color: '#94A3B8' },
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Analyze
+            </Button>
+          )}
+
+          {/* Download (bottleneck results) */}
           {step === 'bottleneck-results' && (
             <Button
               onClick={() => downloadBottleneckReport(summary, bottlenecks)}
+              size='small'
+              startIcon={<Download size={13} />}
+              sx={{
+                fontSize: 12, fontWeight: 500, color: '#fff', border: '1px solid #0F172A',
+                borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: '#0F172A',
+                '&:hover': { background: '#1E293B', borderColor: '#1E293B' },
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Download
+            </Button>
+          )}
+
+          {/* Download (insights results) */}
+          {step === 'insights-results' && (
+            <Button
+              onClick={() => downloadInsightsReport(insightsSprint, insightsStats, insightsSummary)}
               size='small'
               startIcon={<Download size={13} />}
               sx={{
