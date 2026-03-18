@@ -4,8 +4,10 @@ import { useState, useRef } from 'react'
 import { Dialog, IconButton, Typography, Box, Button } from '@mui/material'
 import { X, BarChart2, AlertTriangle, Users } from 'lucide-react'
 import axios from 'axios'
+import { Download } from 'lucide-react'
 import LoadingStep from './taskIntelligence/LoadingStep'
 import BottleneckResultsStep from './boardIntelligence/BottleneckResultsStep'
+import { downloadBottleneckReport } from './boardIntelligence/downloadBottleneckReport'
 
 const ACTIONS = [
   {
@@ -129,7 +131,7 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
   }
 
   const header = STEP_HEADER[step] || STEP_HEADER.feature
-  const showBack = step === 'bottleneck-results'
+  const showBack = false
 
   return (
     <Dialog
@@ -282,22 +284,9 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, py: 1.75, borderTop: '1px solid #F1F5F9' }}>
         <Typography sx={{ fontSize: 11, color: '#64748B' }}>Powered by AI · Results may vary</Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          {showBack && (
-            <Button
-              onClick={() => setStep('feature')}
-              size='small'
-              sx={{
-                fontSize: 12, fontWeight: 500, color: '#0F172A', border: '1px solid #E2E8F0',
-                borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: 'transparent',
-                '&:hover': { background: '#F1F5F9', borderColor: '#CBD5E1' }, transition: 'all 0.15s ease'
-              }}
-            >
-              Back
-            </Button>
-          )}
           <Button
-            onClick={step === 'bottleneck-results' ? handleClose : isLoading ? undefined : handleClose}
-            disabled={isLoading && step !== 'bottleneck-results'}
+            onClick={handleClose}
+            disabled={isLoading}
             size='small'
             sx={{
               fontSize: 12, fontWeight: 500, color: '#0F172A', border: '1px solid #E2E8F0',
@@ -323,6 +312,21 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
               }}
             >
               Run
+            </Button>
+          )}
+          {step === 'bottleneck-results' && (
+            <Button
+              onClick={() => downloadBottleneckReport(summary, bottlenecks)}
+              size='small'
+              startIcon={<Download size={13} />}
+              sx={{
+                fontSize: 12, fontWeight: 500, color: '#fff', border: '1px solid #0F172A',
+                borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: '#0F172A',
+                '&:hover': { background: '#1E293B', borderColor: '#1E293B' },
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Download
             </Button>
           )}
         </Box>
