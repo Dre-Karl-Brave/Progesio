@@ -8,6 +8,7 @@ import LoadingStep from './taskIntelligence/LoadingStep'
 import BottleneckResultsStep from './boardIntelligence/BottleneckResultsStep'
 import SprintSelectStep from './boardIntelligence/SprintSelectStep'
 import InsightsResultsStep from './boardIntelligence/InsightsResultsStep'
+import WorkloadResultsStep from './boardIntelligence/WorkloadResultsStep'
 import { downloadBottleneckReport } from './boardIntelligence/downloadBottleneckReport'
 import { downloadInsightsReport } from './boardIntelligence/downloadInsightsReport'
 
@@ -52,20 +53,31 @@ const INSIGHTS_LOADING_MESSAGES = [
   'Generating sprint insights...'
 ]
 
-const LOADING_STEPS = ['scan-loading', 'insights-loading']
+const WORKLOAD_LOADING_MESSAGES = [
+  'Loading team task data...',
+  'Analyzing task distribution...',
+  'Calculating workload scores...',
+  'Identifying overloaded members...',
+  'Generating rebalancing suggestions...',
+  'Compiling workload report...'
+]
+
+const LOADING_STEPS = ['scan-loading', 'insights-loading', 'workload-loading']
 
 const STEP_HEADER = {
-  feature:           { title: 'Board-level intelligence',  subtitle: "Get a bird's-eye view of your board with AI-driven analysis and team insights." },
-  'scan-loading':    { title: 'Detecting Bottlenecks',     subtitle: 'AI is scanning your board for risks, delays, and neglected tasks...' },
-  'bottleneck-results': { title: 'Bottleneck Report',      subtitle: null },
-  'sprint-select':   { title: 'Sprint Insights',           subtitle: 'Select a completed sprint to analyze.' },
-  'insights-loading':{ title: 'Analyzing Sprint',          subtitle: 'AI is reviewing your sprint data and generating insights...' },
-  'insights-results':{ title: 'Sprint Insights',           subtitle: null }
+  feature:              { title: 'Board-level intelligence',  subtitle: "Get a bird's-eye view of your board with AI-driven analysis and team insights." },
+  'scan-loading':       { title: 'Detecting Bottlenecks',     subtitle: 'AI is scanning your board for risks, delays, and neglected tasks...' },
+  'bottleneck-results': { title: 'Bottleneck Report',         subtitle: null },
+  'sprint-select':      { title: 'Sprint Insights',           subtitle: 'Select a completed sprint to analyze.' },
+  'insights-loading':   { title: 'Analyzing Sprint',          subtitle: 'AI is reviewing your sprint data and generating insights...' },
+  'insights-results':   { title: 'Sprint Insights',           subtitle: null },
+  'workload-loading':   { title: 'Analyzing Workload',        subtitle: 'AI is reviewing task distribution across your team...' },
+  'workload-results':   { title: 'Workload Balance',          subtitle: null }
 }
 
 // ── Component ──────────────────────────────────────────
 
-export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
+export default function BoardIntelligenceDialog({ open, onClose, boardId, onApplyWorkload }) {
   const [selected, setSelected]           = useState(null)
   const [step, setStep]                   = useState('feature')
   const [progress, setProgress]           = useState(0)
@@ -83,6 +95,13 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
   const [insightsSprint, setInsightsSprint] = useState(null)
   const [insightsStats, setInsightsStats]   = useState(null)
   const [insightsSummary, setInsightsSummary] = useState(null)
+
+  // Workload state
+  const [workloadMembers, setWorkloadMembers]       = useState([])
+  const [workloadSummary, setWorkloadSummary]       = useState('')
+  const [workloadSuggestions, setWorkloadSuggestions] = useState([])
+  const [checkedReassignIds, setCheckedReassignIds] = useState([])
+  const [applyingWorkload, setApplyingWorkload]     = useState(false)
 
   const progressInterval = useRef(null)
   const msgInterval      = useRef(null)
@@ -116,9 +135,51 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
 
   // ── Handlers ──────────────────────────────────────
 
+  const handleWorkloadScan = async () => {
+    setStep('workload-loading')
+    setError('')
+    startProgress(WORKLOAD_LOADING_MESSAGES)
+
+    try {
+      const res = await axios.post(`/api/boards/${boardId}/ai/workload`)
+      finishProgress()
+      setTimeout(() => {
+        setWorkloadMembers(res.data.members || [])
+        setWorkloadSummary(res.data.summary || '')
+        setWorkloadSuggestions(res.data.suggestions || [])
+        setCheckedReassignIds([])
+        setStep('workload-results')
+      }, 400)
+    } catch (err) {
+      finishProgress()
+      setError(err.response?.data?.error || 'Something went wrong')
+      setStep('feature')
+    }
+  }
+
+  const handleToggleReassign = (taskId) => {
+    setCheckedReassignIds((prev) =>
+      prev.includes(taskId) ? prev.filter((id) => id !== taskId) : [...prev, taskId]
+    )
+  }
+
+  const handleApplyWorkload = async () => {
+    const selected = workloadSuggestions.filter((s) => checkedReassignIds.includes(s.taskId))
+    if (selected.length === 0) return
+    setApplyingWorkload(true)
+    try {
+      await onApplyWorkload?.(selected)
+      handleClose()
+    } catch {
+      setApplyingWorkload(false)
+    }
+  }
+
   const handleRun = async () => {
     if (selected === 'bottlenecks') {
       handleBottleneckScan()
+    } else if (selected === 'workload') {
+      handleWorkloadScan()
     } else if (selected === 'insights') {
       setSprintsLoading(true)
       setStep('sprint-select')
@@ -192,6 +253,11 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
     setInsightsSprint(null)
     setInsightsStats(null)
     setInsightsSummary(null)
+    setWorkloadMembers([])
+    setWorkloadSummary('')
+    setWorkloadSuggestions([])
+    setCheckedReassignIds([])
+    setApplyingWorkload(false)
     setError('')
     onClose()
   }
@@ -199,7 +265,7 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
   // ── Derived ────────────────────────────────────────
 
   const header      = STEP_HEADER[step] || STEP_HEADER.feature
-  const dialogWidth = ['bottleneck-results', 'insights-results'].includes(step) ? 640 : 580
+  const dialogWidth = ['bottleneck-results', 'insights-results', 'workload-results'].includes(step) ? 640 : 580
 
   // ── Render ─────────────────────────────────────────
 
@@ -279,7 +345,7 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5 }}>
             {ACTIONS.map((action) => {
               const isSelected  = selected === action.id
-              const isDisabled  = action.id === 'workload'
+              const isDisabled  = false
               return (
                 <Box
                   key={action.id}
@@ -356,6 +422,17 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
             sprint={insightsSprint}
             stats={insightsStats}
             summary={insightsSummary}
+          />
+        )}
+
+        {/* Workload results */}
+        {step === 'workload-results' && (
+          <WorkloadResultsStep
+            members={workloadMembers}
+            summary={workloadSummary}
+            suggestions={workloadSuggestions}
+            checkedIds={checkedReassignIds}
+            onToggle={handleToggleReassign}
           />
         )}
       </Box>
@@ -462,6 +539,26 @@ export default function BoardIntelligenceDialog({ open, onClose, boardId }) {
               }}
             >
               Download
+            </Button>
+          )}
+
+          {/* Apply rebalancing (workload results) */}
+          {step === 'workload-results' && workloadSuggestions.length > 0 && (
+            <Button
+              onClick={handleApplyWorkload}
+              disabled={checkedReassignIds.length === 0 || applyingWorkload}
+              size='small'
+              sx={{
+                fontSize: 12, fontWeight: 500, color: '#fff', border: '1px solid #0F172A',
+                borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: '#0F172A',
+                '&:hover': { background: '#1E293B', borderColor: '#1E293B' },
+                '&:disabled': { background: '#E2E8F0', borderColor: '#E2E8F0', color: '#94A3B8' },
+                transition: 'all 0.15s ease'
+              }}
+            >
+              {applyingWorkload
+                ? 'Applying...'
+                : `Apply Rebalancing${checkedReassignIds.length > 0 ? ` (${checkedReassignIds.length})` : ''}`}
             </Button>
           )}
         </Box>
