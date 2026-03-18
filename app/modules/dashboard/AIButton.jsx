@@ -3,24 +3,27 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SquareCheckBig, LayoutDashboard, X } from 'lucide-react'
+import { SquareCheckBig, LayoutDashboard, X, MessageSquarePlus } from 'lucide-react'
 import TaskIntelligenceDialog from './TaskIntelligenceDialog'
 import BoardIntelligenceDialog from './BoardIntelligenceDialog'
+import TaskCreationChatDialog from './TaskCreationChatDialog'
 import { timeRangeToDueDate } from './taskIntelligence/timeRangeToDueDate'
 import { toast } from '@/app/modules/toast/toastUtils'
 
 const options = [
+  { id: 'create', label: 'Create task with AI', Icon: MessageSquarePlus },
   { id: 'task', label: 'Task-level intelligence', Icon: SquareCheckBig },
   { id: 'board', label: 'Board-level intelligence', Icon: LayoutDashboard }
 ]
 
 const BTN_SIZE = 44
 
-export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
+export default function AIButton({ tasks = [], boardId, columns = [], members = [], sprints = [], onTasksUpdated }) {
   const [isOpen, setIsOpen] = useState(false)
   const [hoveredId, setHoveredId] = useState(null)
   const [showTaskDialog, setShowTaskDialog] = useState(false)
   const [showBoardDialog, setShowBoardDialog] = useState(false)
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
 
   const handleApplyEstimates = async (estimates) => {
     await Promise.all(
@@ -80,6 +83,7 @@ export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
   }
 
   const handleClick = (id) => {
+    if (id === 'create') setShowCreateDialog(true)
     if (id === 'task') setShowTaskDialog(true)
     if (id === 'board') setShowBoardDialog(true)
     setIsOpen(false)
@@ -224,6 +228,7 @@ export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
         </motion.button>
       </div>
 
+      <TaskCreationChatDialog open={showCreateDialog} onClose={() => setShowCreateDialog(false)} boardId={boardId} columns={columns} members={members} sprints={sprints} onTaskCreated={onTasksUpdated} />
       <TaskIntelligenceDialog open={showTaskDialog} onClose={() => setShowTaskDialog(false)} onApply={handleApplyEstimates} onApplySubtasks={handleApplySubtasks} onApplyOrganize={handleApplyOrganize} tasks={tasks} boardId={boardId} />
       <BoardIntelligenceDialog open={showBoardDialog} onClose={() => setShowBoardDialog(false)} boardId={boardId} onApplyWorkload={handleApplyWorkload} />
     </>

@@ -589,6 +589,9 @@ export default function KanbanBoard({ boardId }) {
         tasks={(board?.columns || []).flatMap((col) =>
           (col.tasks || []).map((t) => ({ id: t.id, title: t.title, columnName: col.name, columnId: col.id, dueDate: t.dueDate ?? null, priority: t.priority ?? 'medium' }))
         )}
+        columns={(board?.columns || []).map((c) => ({ id: c.id, name: c.name }))}
+        members={board?.members || []}
+        sprints={sprints}
         onTasksUpdated={fetchBoard}
       />
     </DashboardShell>
