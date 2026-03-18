@@ -35,12 +35,14 @@ export const metadata = {
     description: 'An intelligent productivity system with embedded AI insights for sustainable work decisions.',
     url: 'https://progesio.vercel.app',
     siteName: 'Progresio',
-    type: 'website'
+    type: 'website',
+    images: [{ url: '/progresio.png', width: 1200, height: 630, alt: 'Progresio' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Progresio',
-    description: 'Work smarter using intensity-based task boards and AI-driven workload insights.'
+    description: 'Work smarter using intensity-based task boards and AI-driven workload insights.',
+    images: ['/progresio.png']
   },
   robots: {
     index: true,
