@@ -7,6 +7,7 @@ import { SquareCheckBig, LayoutDashboard, X } from 'lucide-react'
 import TaskIntelligenceDialog from './TaskIntelligenceDialog'
 import BoardIntelligenceDialog from './BoardIntelligenceDialog'
 import { timeRangeToDueDate } from './taskIntelligence/timeRangeToDueDate'
+import { toast } from '@/app/modules/toast/toastUtils'
 
 const options = [
   { id: 'task', label: 'Task-level intelligence', Icon: SquareCheckBig },
@@ -30,9 +31,11 @@ export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
       )
     )
     onTasksUpdated?.()
+    toast.success(`Due dates updated for ${estimates.length} task${estimates.length !== 1 ? 's' : ''}.`)
   }
 
   const handleApplySubtasks = async (subtaskResults, allTasks) => {
+    const created = subtaskResults.flatMap((r) => r.items)
     await Promise.all(
       subtaskResults.flatMap((result) => {
         const parent = allTasks.find((t) => t.id === result.parentId)
@@ -48,6 +51,7 @@ export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
       })
     )
     onTasksUpdated?.()
+    toast.success(`${created.length} subtask${created.length !== 1 ? 's' : ''} created across ${subtaskResults.length} task${subtaskResults.length !== 1 ? 's' : ''}.`)
   }
 
   const handleApplyOrganize = async (suggestions) => {
@@ -60,6 +64,7 @@ export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
       )
     )
     onTasksUpdated?.()
+    toast.success(`Priority updated for ${changed.length} task${changed.length !== 1 ? 's' : ''}.`)
   }
 
   const handleApplyWorkload = async (suggestions) => {
@@ -71,6 +76,7 @@ export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
       )
     )
     onTasksUpdated?.()
+    toast.success(`${suggestions.length} task${suggestions.length !== 1 ? 's' : ''} reassigned successfully.`)
   }
 
   const handleClick = (id) => {

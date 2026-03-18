@@ -1,5 +1,6 @@
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Toaster } from '@/app/modules/toast'
 import './globals.css'
 
 const inter = Inter({
@@ -53,6 +54,7 @@ export default function RootLayout({ children }) {
     <html lang='en'>
       <body className={`${inter.variable} antialiased`}>
         {children}
+        <Toaster position='top-right' />
         <Analytics />
       </body>
     </html>
