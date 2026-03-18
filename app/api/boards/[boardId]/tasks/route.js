@@ -17,7 +17,7 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: 'Board not found' }, { status: 404 })
     }
 
-    const { title, columnId, priority, dueDate, assigneeId, description, sprintId } = await request.json()
+    const { title, columnId, priority, dueDate, assigneeId, description, sprintId, labels } = await request.json()
 
     if (!title?.trim()) {
       return NextResponse.json({ error: 'Task title is required' }, { status: 400 })
@@ -62,6 +62,7 @@ export async function POST(request, { params }) {
         title: title.trim(),
         description: description?.trim() || null,
         priority: priority || 'medium',
+        labels: Array.isArray(labels) ? labels : [],
         dueDate: dueDate ? new Date(dueDate) : null,
         position: nextPosition,
         columnId,

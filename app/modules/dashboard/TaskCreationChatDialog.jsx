@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Dialog, IconButton } from '@mui/material'
-import { X, Send, CheckCircle2, Layers, User, Zap } from 'lucide-react'
+import { X, Send, CheckCircle2, Layers, User, Zap, Calendar, Tag } from 'lucide-react'
 import axios from 'axios'
 import { toast } from '@/app/modules/toast/toastUtils'
 
@@ -69,11 +69,36 @@ function TaskSuggestionCard({ suggestion, onConfirm, confirmed }) {
         )}
 
         {/* Metadata */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: suggestion.labels?.length ? 8 : 14 }}>
           <MetaChip icon={<Layers size={10} />} label={suggestion.columnName} />
-          {suggestion.assigneeName && <MetaChip icon={<User size={10} />} label={suggestion.assigneeName} />}
-          {suggestion.sprintName   && <MetaChip icon={<Zap  size={10} />} label={suggestion.sprintName} />}
+          {suggestion.assigneeName && <MetaChip icon={<User     size={10} />} label={suggestion.assigneeName} />}
+          {suggestion.sprintName   && <MetaChip icon={<Zap      size={10} />} label={suggestion.sprintName} />}
+          {suggestion.dueDate      && <MetaChip icon={<Calendar size={10} />} label={new Date(suggestion.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} />}
         </div>
+
+        {/* Labels */}
+        {suggestion.labels?.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 14 }}>
+            {suggestion.labels.map((l) => (
+              <span
+                key={l}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  fontSize: 11,
+                  color: '#6366F1',
+                  background: '#EEF2FF',
+                  borderRadius: 5,
+                  padding: '3px 7px'
+                }}
+              >
+                <Tag size={9} />
+                {l}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Action */}
         {confirmed ? (
@@ -197,13 +222,14 @@ function Message({ msg, onConfirmTask, confirmedIds }) {
         >
           {msg.content}
         </div>
-        {msg.taskSuggestion && (
+        {msg.taskSuggestions?.map((suggestion, i) => (
           <TaskSuggestionCard
-            suggestion={msg.taskSuggestion}
-            onConfirm={() => onConfirmTask(msg.id, msg.taskSuggestion)}
-            confirmed={confirmedIds.has(msg.id)}
+            key={i}
+            suggestion={suggestion}
+            onConfirm={() => onConfirmTask(`${msg.id}-${i}`, suggestion)}
+            confirmed={confirmedIds.has(`${msg.id}-${i}`)}
           />
-        )}
+        ))}
       </div>
     </div>
   )
@@ -299,11 +325,12 @@ export default function TaskCreationChatDialog({ open, onClose, boardId, columns
         history: getHistory()
       })
 
+      const suggestions = data.taskSuggestions?.length ? data.taskSuggestions : data.taskSuggestion ? [data.taskSuggestion] : []
       setMessages((prev) => [...prev, {
         id: makeId(),
         role: 'assistant',
-        content: data.reply || 'Here is the task I drafted.',
-        taskSuggestion: data.taskSuggestion || null
+        content: data.reply || `Here ${suggestions.length === 1 ? 'is the task' : `are the ${suggestions.length} tasks`} I drafted.`,
+        taskSuggestions: suggestions
       }])
     } catch {
       setMessages((prev) => [...prev, {
@@ -320,16 +347,18 @@ export default function TaskCreationChatDialog({ open, onClose, boardId, columns
   const handleConfirmTask = async (msgId, suggestion) => {
     try {
       await axios.post(`/api/boards/${boardId}/tasks`, {
-        title:      suggestion.title,
+        title:       suggestion.title,
         description: suggestion.description || '',
-        priority:   suggestion.priority,
-        columnId:   suggestion.columnId,
-        assigneeId: suggestion.assigneeId || undefined,
-        sprintId:   suggestion.sprintId   || undefined
+        priority:    suggestion.priority,
+        columnId:    suggestion.columnId,
+        assigneeId:  suggestion.assigneeId || undefined,
+        sprintId:    suggestion.sprintId   || undefined,
+        dueDate:     suggestion.dueDate    || undefined,
+        labels:      suggestion.labels     || []
       })
       setConfirmedIds((prev) => new Set([...prev, msgId]))
       onTaskCreated?.()
-      toast.success(`"${suggestion.title}" created.`)
+      toast.success(`"${suggestion.title}" created successfully.`)
     } catch {
       toast.error('Failed to create task.')
     }
@@ -380,7 +409,7 @@ export default function TaskCreationChatDialog({ open, onClose, boardId, columns
               Create a task
             </p>
             <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>
-              Describe what you need and I'll draft it for you.
+              Describe what you need and it will be drafted for you.
             </p>
           </div>
           <IconButton
