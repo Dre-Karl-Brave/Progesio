@@ -10,17 +10,19 @@ import LoadingStep from './taskIntelligence/LoadingStep'
 import EstimateResultsStep from './taskIntelligence/EstimateResultsStep'
 import SubtaskBreakdownStep from './taskIntelligence/SubtaskBreakdownStep'
 import SubtaskResultsStep from './taskIntelligence/SubtaskResultsStep'
+import OrganizeResultsStep from './taskIntelligence/OrganizeResultsStep'
 import {
   ESTIMATE_LOADING_MESSAGES,
   SCAN_LOADING_MESSAGES,
   GENERATE_LOADING_MESSAGES,
+  ORGANIZE_LOADING_MESSAGES,
   STEP_HEADER
 } from './taskIntelligence/constants'
 
-const BACK_MAP = { tasks: 'feature', 'select-breakdown': 'feature' }
-const LOADING_STEPS = ['loading', 'scan-loading', 'generate-loading']
+const BACK_MAP = { tasks: 'feature', 'select-breakdown': 'feature', 'organize-tasks': 'feature' }
+const LOADING_STEPS = ['loading', 'scan-loading', 'generate-loading', 'organize-loading']
 
-export default function TaskIntelligenceDialog({ open, onClose, onApply, onApplySubtasks, tasks = [], boardId }) {
+export default function TaskIntelligenceDialog({ open, onClose, onApply, onApplySubtasks, onApplyOrganize, tasks = [], boardId }) {
   const [selected, setSelected] = useState(null)
   const [step, setStep] = useState('feature')
 
@@ -32,6 +34,10 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
   const [bigTasks, setBigTasks] = useState([])
   const [checkedIds, setCheckedIds] = useState([])
   const [subtaskResults, setSubtaskResults] = useState([])
+
+  // Organize state
+  const [organizeSelectedTasks, setOrganizeSelectedTasks] = useState([])
+  const [organizeResults, setOrganizeResults] = useState([])
 
   // Shared loading state
   const [progress, setProgress] = useState(0)
@@ -50,6 +56,8 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
     setBigTasks([])
     setCheckedIds([])
     setSubtaskResults([])
+    setOrganizeSelectedTasks([])
+    setOrganizeResults([])
     setProgress(0)
     setLoadingMsg('')
     setError('')
@@ -83,6 +91,7 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
   const handleRun = () => {
     if (selected === 'estimate') setStep('tasks')
     if (selected === 'subtasks') handleScan()
+    if (selected === 'organize') setStep('organize-tasks')
   }
 
   const handleEstimate = async () => {
@@ -146,6 +155,25 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
     setCheckedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])
   }
 
+  // ─── Organize flow ────────────────────────────────────────────────────
+  const handleOrganize = async () => {
+    if (organizeSelectedTasks.length === 0) return
+    setStep('organize-loading')
+    setError('')
+    startProgress(ORGANIZE_LOADING_MESSAGES)
+    try {
+      const res = await axios.post(`/api/boards/${boardId}/ai/organize`, {
+        taskIds: organizeSelectedTasks.map((t) => t.id)
+      })
+      finishProgress()
+      setTimeout(() => { setOrganizeResults(res.data.suggestions || []); setStep('organize-results') }, 400)
+    } catch (err) {
+      finishProgress()
+      setError(err.response?.data?.error || 'Something went wrong')
+      setStep('organize-tasks')
+    }
+  }
+
   // ─── Header ──────────────────────────────────────────────────────────
   const header = STEP_HEADER[step] || STEP_HEADER.feature
   const subtitle =
@@ -153,11 +181,16 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
       ? `${estimateResults.length} task${estimateResults.length !== 1 ? 's' : ''} analyzed.`
       : step === 'subtask-results'
       ? `${subtaskResults.reduce((n, r) => n + r.items.length, 0)} subtasks ready across ${subtaskResults.length} task${subtaskResults.length !== 1 ? 's' : ''}.`
+      : step === 'organize-results'
+      ? `${organizeResults.filter((s) => s.changed).length} change${organizeResults.filter((s) => s.changed).length !== 1 ? 's' : ''} suggested across ${organizeResults.length} task${organizeResults.length !== 1 ? 's' : ''}.`
       : header.subtitle
 
   const isLoading = LOADING_STEPS.includes(step)
   const backStep = BACK_MAP[step]
-  const loadingTaskCount = step === 'loading' ? selectedTasks.length : checkedIds.length
+  const loadingTaskCount =
+    step === 'loading' ? selectedTasks.length
+    : step === 'organize-loading' ? organizeSelectedTasks.length
+    : checkedIds.length
 
   return (
     <Dialog
@@ -216,6 +249,8 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
         {step === 'results' && <EstimateResultsStep results={estimateResults} selectedTasks={selectedTasks} />}
         {step === 'select-breakdown' && <SubtaskBreakdownStep bigTasks={bigTasks} tasks={tasks} checkedIds={checkedIds} onToggle={handleToggleCheck} error={error} />}
         {step === 'subtask-results' && <SubtaskResultsStep subtaskResults={subtaskResults} tasks={tasks} />}
+        {step === 'organize-tasks' && <TaskSelectionStep tasks={tasks} selectedTasks={organizeSelectedTasks} onChangeSelectedTasks={setOrganizeSelectedTasks} error={error} />}
+        {step === 'organize-results' && <OrganizeResultsStep suggestions={organizeResults} selectedTasks={organizeSelectedTasks} />}
       </Box>
 
       {/* Footer */}
@@ -224,7 +259,7 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
         <Box sx={{ display: 'flex', gap: 1 }}>
           {!isLoading && (
             <Button onClick={handleClose} size='small' sx={{ fontSize: 12, fontWeight: 500, color: '#0F172A', border: '1px solid #E2E8F0', borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: 'transparent', '&:hover': { background: '#F1F5F9', borderColor: '#CBD5E1' }, transition: 'all 0.15s ease' }}>
-              {['results', 'subtask-results'].includes(step) ? 'Discard' : 'Cancel'}
+              {['results', 'subtask-results', 'organize-results'].includes(step) ? 'Discard' : 'Cancel'}
             </Button>
           )}
           {step === 'feature' && (
@@ -249,6 +284,16 @@ export default function TaskIntelligenceDialog({ open, onClose, onApply, onApply
           )}
           {step === 'subtask-results' && (
             <Button onClick={() => { onApplySubtasks?.(subtaskResults, tasks); handleClose() }} size='small' sx={{ fontSize: 12, fontWeight: 500, color: '#fff', border: '1px solid #0F172A', borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: '#0F172A', '&:hover': { background: '#1E293B' }, transition: 'all 0.15s ease' }}>
+              Apply
+            </Button>
+          )}
+          {step === 'organize-tasks' && (
+            <Button onClick={handleOrganize} disabled={organizeSelectedTasks.length === 0} size='small' sx={{ fontSize: 12, fontWeight: 500, color: '#fff', border: '1px solid #0F172A', borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: '#0F172A', '&:hover': { background: '#1E293B' }, '&:disabled': { background: '#E2E8F0', borderColor: '#E2E8F0', color: '#94A3B8' }, transition: 'all 0.15s ease' }}>
+              Analyze
+            </Button>
+          )}
+          {step === 'organize-results' && (
+            <Button onClick={() => { onApplyOrganize?.(organizeResults); handleClose() }} size='small' sx={{ fontSize: 12, fontWeight: 500, color: '#fff', border: '1px solid #0F172A', borderRadius: '8px', px: 2, py: 0.75, textTransform: 'none', background: '#0F172A', '&:hover': { background: '#1E293B' }, transition: 'all 0.15s ease' }}>
               Apply
             </Button>
           )}

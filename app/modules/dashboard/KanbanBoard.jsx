@@ -587,7 +587,7 @@ export default function KanbanBoard({ boardId }) {
       <AIButton
         boardId={boardId}
         tasks={(board?.columns || []).flatMap((col) =>
-          (col.tasks || []).map((t) => ({ id: t.id, title: t.title, columnName: col.name, columnId: col.id, dueDate: t.dueDate ?? null }))
+          (col.tasks || []).map((t) => ({ id: t.id, title: t.title, columnName: col.name, columnId: col.id, dueDate: t.dueDate ?? null, priority: t.priority ?? 'medium' }))
         )}
         onTasksUpdated={fetchBoard}
       />

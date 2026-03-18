@@ -48,6 +48,14 @@ export const GENERATE_LOADING_MESSAGES = [
   'Finalizing subtasks...'
 ]
 
+export const ORGANIZE_LOADING_MESSAGES = [
+  'Reading task details...',
+  'Evaluating urgency and scope...',
+  'Comparing priority levels...',
+  'Checking due dates...',
+  'Finalizing suggestions...'
+]
+
 export const COMPLEXITY_COLORS = {
   low: { bg: '#F0FDF4', text: '#166534', border: '#BBF7D0' },
   medium: { bg: '#FFFBEB', text: '#92400E', border: '#FDE68A' },
@@ -91,6 +99,18 @@ export const STEP_HEADER = {
   },
   'subtask-results': {
     title: 'Generated subtasks',
+    subtitle: null // dynamic
+  },
+  'organize-tasks': {
+    title: 'Select tasks to organize',
+    subtitle: 'Choose tasks for AI to evaluate and suggest priority adjustments.'
+  },
+  'organize-loading': {
+    title: 'Analyzing priorities...',
+    subtitle: 'AI is evaluating urgency, scope, and due dates.'
+  },
+  'organize-results': {
+    title: 'Priority suggestions',
     subtitle: null // dynamic
   }
 }

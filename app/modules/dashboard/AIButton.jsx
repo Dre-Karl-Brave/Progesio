@@ -50,6 +50,18 @@ export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
     onTasksUpdated?.()
   }
 
+  const handleApplyOrganize = async (suggestions) => {
+    const changed = suggestions.filter((s) => s.changed)
+    await Promise.all(
+      changed.map((s) =>
+        axios.patch(`/api/boards/${boardId}/tasks/${s.id}`, {
+          priority: s.suggestedPriority
+        })
+      )
+    )
+    onTasksUpdated?.()
+  }
+
   const handleClick = (id) => {
     if (id === 'task') setShowTaskDialog(true)
     if (id === 'board') setShowBoardDialog(true)
@@ -195,7 +207,7 @@ export default function AIButton({ tasks = [], boardId, onTasksUpdated }) {
         </motion.button>
       </div>
 
-      <TaskIntelligenceDialog open={showTaskDialog} onClose={() => setShowTaskDialog(false)} onApply={handleApplyEstimates} onApplySubtasks={handleApplySubtasks} tasks={tasks} boardId={boardId} />
+      <TaskIntelligenceDialog open={showTaskDialog} onClose={() => setShowTaskDialog(false)} onApply={handleApplyEstimates} onApplySubtasks={handleApplySubtasks} onApplyOrganize={handleApplyOrganize} tasks={tasks} boardId={boardId} />
       <BoardIntelligenceDialog open={showBoardDialog} onClose={() => setShowBoardDialog(false)} />
     </>
   )
